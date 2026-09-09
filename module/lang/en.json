@@ -12,6 +12,8 @@
   "DHVFX.finestra.senzaToken": "Select the token that is casting.",
   "DHVFX.finestra.senzaBersaglio": "A projectile needs a target (T key).",
   "DHVFX.finestra.importata": "Map imported.",
+  "DHVFX.finestra.importoNonValido": "The pasted text is not valid JSON, or is not an object. The map was not touched.",
+  "DHVFX.finestra.azioneFallita": "The action did not complete. Please try again.",
   "DHVFX.settings.menu.name": "Domain card effects",
   "DHVFX.settings.menu.label": "Open the window",
   "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card action."

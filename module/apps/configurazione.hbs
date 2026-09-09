@@ -17,8 +17,7 @@
       <span class="dhvfx-titolo">{{this.nomeCarta}} — {{this.nomeAzione}}</span>
       <input type="text" name="file" value="{{this.file}}" placeholder="jb2a...">
       <select name="forma">
-        <option value="">—</option>
-        {{#each ../forme}}<option value="{{this}}">{{this}}</option>{{/each}}
+        {{selectOptions ../forme selected=this.forma blank="—"}}
       </select>
       <button type="button" data-azione="sfoglia">🔍</button>
       <button type="button" data-azione="prova">▶</button>

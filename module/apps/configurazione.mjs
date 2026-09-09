@@ -1,12 +1,13 @@
 import { MODULE_ID, SETTING_MAPPA, FORME } from "../lib/costanti.mjs";
 import { righeDaCarte, precompila } from "../lib/catalogo.mjs";
+import { risolviForma } from "../lib/decisione.mjs";
 import { costruisci } from "../lib/scena.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
-    id: "daggerheart-vfx-configurazione",
+    id: `${MODULE_ID}-configurazione`,
     tag: "div",
     window: { title: "DHVFX.finestra.titolo", resizable: true },
     position: { width: 780, height: 640 },
@@ -15,6 +16,11 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
 
   /* Una PART, una radice. Vedi test/template.test.mjs. */
   static PARTS = { corpo: { template: `modules/${MODULE_ID}/apps/configurazione.hbs` } };
+
+  /* Coda delle scritture sulla mappa: due `change` ravvicinati su righe diverse leggerebbero
+     altrimenti la stessa mappa e il secondo sovrascriverebbe il primo. Un fallimento non blocca
+     le scritture successive: la coda si "ripulisce" prima di mettersi in fila di nuovo. */
+  #codaScritture = Promise.resolve();
 
   async _prepareContext() {
     const mappa = game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
@@ -39,32 +45,54 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     return documenti.map(d => d.toObject());
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
+  /*
+   * Gli ascoltatori si agganciano una volta sola, non a ogni render: il mixin non sostituisce
+   * la radice fra un render e l'altro, solo il contenuto della PART, quindi la delega su
+   * `radice` sopravvive a `this.render()`. Agganciarli in _onRender (chiamato a ogni render)
+   * li raddoppierebbe ogni volta che Precompila o Importa richiamano render(): il primo Prova
+   * dopo un Precompila giocherebbe l'effetto due volte, il secondo Precompila ne aggiungerebbe
+   * altri due, e cosi' via.
+   */
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
     const radice = this.element;
 
-    radice.addEventListener("click", async ev => {
+    radice.addEventListener("click", ev => {
       const bottone = ev.target.closest("button[data-azione]");
       if (!bottone) return;
       const riga = bottone.closest(".dhvfx-riga");
       const azione = bottone.dataset.azione;
 
-      if (azione === "precompila") return this.#precompila();
-      if (azione === "esporta") return this.#esporta();
-      if (azione === "importa") return this.#importa();
+      if (azione === "precompila") return this.#eseguire(this.#precompila());
+      if (azione === "esporta") return this.#eseguire(this.#esporta());
+      if (azione === "importa") return this.#eseguire(this.#importa());
       if (azione === "sfoglia") return Sequencer.DatabaseViewer.show();
-      if (azione === "prova") return this.#prova(riga);
+      if (azione === "prova") return this.#eseguire(this.#prova(riga));
     });
 
     /* Il salvataggio e' immediato: una finestra con 284 righe e un bottone Salva in fondo e'
        un modo per perdere il lavoro. */
     radice.addEventListener("change", ev => {
+      if (ev.target.matches("[name=dominio]")) return this.#filtra();
       const riga = ev.target.closest(".dhvfx-riga");
-      if (riga) this.#salvaRiga(riga);
+      if (riga) this.#eseguire(this.#salvaRiga(riga));
     });
 
-    radice.querySelector("[name=dominio]").addEventListener("change", () => this.#filtra());
-    radice.querySelector("[name=cerca]").addEventListener("input", () => this.#filtra());
+    radice.addEventListener("input", ev => {
+      if (ev.target.matches("[name=cerca]")) this.#filtra();
+    });
+  }
+
+  /*
+   * Ogni azione della finestra parte da un handler di evento, quindi nessuno la aspetta: senza
+   * questo, una `game.settings.set` che cade sparisce senza che l'utente se ne accorga, e il
+   * campo continua a mostrare un valore che in realta' non e' stato salvato.
+   */
+  #eseguire(promessa) {
+    Promise.resolve(promessa).catch(e => {
+      console.error(`[${MODULE_ID}] azione fallita:`, e);
+      ui.notifications.error(game.i18n.localize("DHVFX.finestra.azioneFallita"));
+    });
   }
 
   #filtra() {
@@ -77,13 +105,24 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     }
   }
 
-  async #salvaRiga(riga) {
-    const mappa = { ...(game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {}) };
+  /*
+   * I valori si leggono subito (sincroni, prima di mettersi in coda): la riga potrebbe non
+   * esistere piu' se nel frattempo arriva un render, e la coda serializza solo la scrittura,
+   * non la lettura del DOM.
+   */
+  #salvaRiga(riga) {
+    const chiave = riga.dataset.chiave;
     const file = riga.querySelector("[name=file]").value.trim();
     const forma = riga.querySelector("[name=forma]").value;
-    if (file) mappa[riga.dataset.chiave] = { file, forma: forma || "auto" };
-    else delete mappa[riga.dataset.chiave];
-    await game.settings.set(MODULE_ID, SETTING_MAPPA, mappa);
+
+    const scrittura = this.#codaScritture.then(() => {}, () => {}).then(async () => {
+      const mappa = { ...(game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {}) };
+      if (file) mappa[chiave] = { file, forma: forma || "auto" };
+      else delete mappa[chiave];
+      await game.settings.set(MODULE_ID, SETTING_MAPPA, mappa);
+    });
+    this.#codaScritture = scrittura;
+    return scrittura;
   }
 
   async #precompila() {
@@ -100,6 +139,10 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
    * Prova: gioca l'effetto della riga sul token selezionato, senza passare dalla scheda.
    * E' il modo in cui si sceglie un effetto — assegnarlo alla cieca e scoprirlo al tavolo
    * non e' un modo.
+   *
+   * La forma si risolve con la stessa funzione pura che usa il flusso di gioco vero
+   * (decisione.mjs): due copie della stessa regola potrebbero divergere, e allora Prova
+   * mostrerebbe una cosa diversa da quello che succede al tavolo.
    */
   async #prova(riga) {
     const file = riga.querySelector("[name=file]").value.trim();
@@ -108,8 +151,7 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     if (!origine) return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaToken"));
 
     const bersagli = Array.from(game.user.targets);
-    let forma = riga.querySelector("[name=forma]").value || "auto";
-    if (forma === "auto") forma = bersagli.length ? "bersaglio" : "lanciatore";
+    const forma = risolviForma(riga.querySelector("[name=forma]").value || "auto", bersagli);
     if (forma === "proiettile" && !bersagli.length)
       return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaBersaglio"));
 
@@ -122,14 +164,35 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
       `${MODULE_ID}-mappa.json`);
   }
 
+  /*
+   * L'import sostituisce l'intera mappa: un fallimento muto qui costerebbe tutte le righe
+   * gia' assegnate. DialogV2.prompt rigetta la promessa quando l'utente annulla (non e' un
+   * errore), e un JSON malformato o di forma sbagliata deve fermarsi con un messaggio, non
+   * con un'eccezione persa o una mappa corrotta.
+   */
   async #importa() {
-    const contenuto = await foundry.applications.api.DialogV2.prompt({
-      window: { title: game.i18n.localize("DHVFX.finestra.importa") },
-      content: `<textarea name="json" rows="12" style="width:100%"></textarea>`,
-      ok: { callback: (ev, bottone) => bottone.form.elements.json.value }
-    });
+    let contenuto;
+    try {
+      contenuto = await foundry.applications.api.DialogV2.prompt({
+        window: { title: game.i18n.localize("DHVFX.finestra.importa") },
+        content: `<textarea name="json" rows="12" style="width:100%"></textarea>`,
+        ok: { callback: (ev, bottone) => bottone.form.elements.json.value }
+      });
+    } catch {
+      return; // annullato dall'utente
+    }
     if (!contenuto) return;
-    await game.settings.set(MODULE_ID, SETTING_MAPPA, JSON.parse(contenuto));
+
+    let mappa;
+    try {
+      mappa = JSON.parse(contenuto);
+    } catch {
+      return ui.notifications.error(game.i18n.localize("DHVFX.finestra.importoNonValido"));
+    }
+    if (typeof mappa !== "object" || mappa === null || Array.isArray(mappa))
+      return ui.notifications.error(game.i18n.localize("DHVFX.finestra.importoNonValido"));
+
+    await game.settings.set(MODULE_ID, SETTING_MAPPA, mappa);
     ui.notifications.info(game.i18n.localize("DHVFX.finestra.importata"));
     this.render();
   }
