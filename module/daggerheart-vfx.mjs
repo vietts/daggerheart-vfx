@@ -81,9 +81,18 @@ function azioniInScena() {
   );
 }
 
+/*
+ * Il preload lo innesca il solo GM. `canvasReady` scatta su OGNI client, e
+ * `preloadForClients` per definizione manda la richiesta a tutti quanti: con il GM e quattro
+ * giocatori sarebbero cinque trasmissioni per cambio scena, cioe' venticinque preload chiesti
+ * e cinque barre di progresso su ogni schermo. Resta `preloadForClients` e non un preload
+ * locale perche' la spec §8 vuole che gli asset arrivino a tutti: e' sbagliato solo chi lo
+ * innesca, non il meccanismo.
+ */
 Hooks.on("canvasReady", async () => {
   try {
     if (!attivo()) return;
+    if (!game.user.isGM) return;
     const file = fileDaPrecaricare(azioniInScena(), mappa());
     if (!file.length) return;
     await Sequencer.Preloader.preloadForClients(file, true);
