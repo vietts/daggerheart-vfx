@@ -8,11 +8,38 @@
 import { chiave, datiAzione } from "./chiavi.mjs";
 import { fileDaRegola, formaDaAzione } from "./regole.mjs";
 
+/*
+ * L'unico modo di iterare le azioni di una carta, per i due cammini che ne hanno bisogno: la
+ * finestra (che vede oggetti sorgente, da toObject()) e il preload (che vede documenti vivi,
+ * cioe' quello che il system istanzia). Due cicli scritti separatamente avevano gia' smesso
+ * di leggere la stessa cosa: se a runtime `system.actions` fosse una Collection invece di un
+ * oggetto semplice, `Object.values` darebbe [] e il preload non precaricherebbe niente, in
+ * silenzio.
+ *
+ * Quindi si accettano le tre forme plausibili (oggetto, array, qualunque cosa abbia values())
+ * e si legge campo per campo invece di fare lo spread: se i campi dell'azione fossero getter
+ * di prototipo e non proprieta' proprie, `{ ...az }` li perderebbe e ne uscirebbero chiavi e
+ * forme sbagliate.
+ */
+export function azioniDiCarta(carta) {
+  const azioni = carta?.system?.actions;
+  if (!azioni || typeof azioni !== "object") return [];
+
+  const elenco = Array.isArray(azioni) ? azioni
+    : typeof azioni.values === "function" ? [...azioni.values()]
+    : Object.values(azioni);
+
+  return elenco
+    .filter(az => az && typeof az === "object")
+    .map(az => datiAzione({
+      _id: az._id, name: az.name, type: az.type, range: az.range, target: az.target, item: carta
+    }));
+}
+
 export function righeDaCarte(carte, mappa = {}) {
   const righe = [];
   for (const carta of carte) {
-    for (const azione of Object.values(carta.system?.actions ?? {})) {
-      const dati = datiAzione({ ...azione, item: carta });
+    for (const dati of azioniDiCarta(carta)) {
       const k = chiave(dati);
       if (!k) continue;
       const riga = mappa[k] ?? {};

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { righeDaCarte, precompila } from "../module/lib/catalogo.mjs";
+import { azioniDiCarta, righeDaCarte, precompila } from "../module/lib/catalogo.mjs";
 
 const F = "Compendium.daggerheart.domains.Item.AAA";
 const carta = (nome, dominio, azioni) => ({
@@ -57,4 +57,52 @@ test("una coppia dominio+tipo senza regola resta vuota", () => {
   const strana = [carta("X", "dominio-inventato", { z: { _id: "z", name: "Z", type: "attack", target: {} } })];
   const nuova = precompila(righeDaCarte(strana, {}), {});
   assert.equal(Object.keys(nuova).length, 0);
+});
+
+/*
+ * azioniDiCarta e' l'unico punto in cui il modulo legge system.actions, e i due cammini che
+ * lo usano vedono strutture diverse: oggetti sorgente nella finestra, documenti vivi nel
+ * preload. Questi test fissano le forme che deve reggere, perche' quando non le regge il
+ * sintomo e' il silenzio: zero effetti precaricati e nessun errore.
+ */
+test("le azioni si leggono da un oggetto semplice", () => {
+  const dati = azioniDiCarta(carte[0]);
+  assert.equal(dati.length, 2);
+  assert.deepEqual(dati.map(d => d.nomeAzione), ["Arcane Barrage", "Telepathy"]);
+  assert.equal(dati[0].dominio, "arcana");
+  assert.equal(dati[0].range, "close");
+  assert.equal(dati[0].targetType, "any");
+});
+
+test("le azioni si leggono anche da una Collection e da un array", () => {
+  const voci = Object.values(carte[0].system.actions);
+  const collezione = { ...carte[0], system: { ...carte[0].system, actions: new Map(voci.map(a => [a._id, a])) } };
+  const array = { ...carte[0], system: { ...carte[0].system, actions: voci } };
+  const attese = azioniDiCarta(carte[0]);
+  assert.deepEqual(azioniDiCarta(collezione), attese);
+  assert.deepEqual(azioniDiCarta(array), attese);
+});
+
+test("i campi si leggono uno per uno, cosi' i getter di prototipo non si perdono", () => {
+  class Azione {
+    constructor(id) { this._id = id; }
+    get name() { return "Arcane Barrage"; }
+    get type() { return "damage"; }
+    get range() { return "close"; }
+    get target() { return { type: "any" }; }
+  }
+  const viva = { ...carte[0], system: { ...carte[0].system, actions: { a1: new Azione("a1") } } };
+  const [dati] = azioniDiCarta(viva);
+  assert.equal(dati.nomeAzione, "Arcane Barrage");
+  assert.equal(dati.tipo, "damage");
+  assert.equal(dati.range, "close");
+  assert.equal(dati.targetType, "any");
+});
+
+test("una carta senza azioni, o con azioni di forma impensata, da' una lista vuota", () => {
+  assert.deepEqual(azioniDiCarta({ system: {} }), []);
+  assert.deepEqual(azioniDiCarta({ system: { actions: null } }), []);
+  assert.deepEqual(azioniDiCarta({ system: { actions: "niente" } }), []);
+  assert.deepEqual(azioniDiCarta(null), []);
+  assert.deepEqual(azioniDiCarta({ system: { actions: { a: null, b: 42 } } }), []);
 });
