@@ -1,0 +1,44 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: I test devono passare prima di pubblicare
+        run: npm test
+
+      - name: Allinea versione e download del manifest al tag
+        env:
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          V="${TAG#v}"
+          node -e '
+            const fs = require("fs");
+            const [, , versione, repo] = process.argv;
+            const p = "module/module.json";
+            const m = JSON.parse(fs.readFileSync(p, "utf8"));
+            m.version = versione;
+            m.download = `https://github.com/${repo}/releases/download/v${versione}/module.zip`;
+            fs.writeFileSync(p, JSON.stringify(m, null, 2));
+          ' "$V" "$REPO"
+
+      - name: Impacchetta
+        run: cd module && zip -r ../module.zip .
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            module/module.json
+            module.zip
