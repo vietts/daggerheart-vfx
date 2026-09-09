@@ -23,5 +23,5 @@ ssh "$SERVER" "chown -R 1000:1000 $DEST && ls -la $DEST"
 
 echo
 echo "Copiato. Alla prima installazione serve un riavvio perche' compaia in Manage Modules:"
-echo "  ssh $SERVER 'docker stop $CONTAINER && sleep 5 && docker start $CONTAINER'"
+echo "  ssh $SERVER 'docker stop $CONTAINER && sleep 15 && docker start $CONTAINER'"
 echo "Non usare 'docker restart': lascia un lock e il server sembra morto per 320s."

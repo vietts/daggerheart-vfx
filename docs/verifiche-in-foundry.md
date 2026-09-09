@@ -33,7 +33,7 @@ conta: **non usare `docker restart`** — lascia un lock e il server sembra mort
 320 secondi. Usare invece:
 
 ```sh
-ssh utente@host 'docker stop nome-container && sleep 5 && docker start nome-container'
+ssh utente@host 'docker stop nome-container && sleep 15 && docker start nome-container'
 ```
 
 Dopo il riavvio, attiva il modulo da Configuration → Manage Modules e vai alla sezione
