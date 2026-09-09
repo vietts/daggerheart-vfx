@@ -36,11 +36,21 @@ Hooks.once("init", () => {
 /*
  * Trasforma il descrittore (che porta id di token, perche' e' puro) in oggetti del canvas.
  * Un bersaglio sparito nel frattempo viene semplicemente lasciato fuori.
+ *
+ * E se li lascia fuori tutti, non si gioca niente. La guardia di decisione.mjs sta a monte di
+ * questa traduzione: un descrittore che li' aveva bersagli puo' arrivare qui senza (token
+ * cancellato, scena cambiata, bersaglio su un'altra scena), e `costruisci` ciclerebbe su un
+ * array vuoto producendo una Sequence che non fa nulla. Vale per `proiettile` e per
+ * `bersaglio`: il solo `lanciatore` non ha bisogno di nessuno.
  */
-function risolviToken({ origine, bersagli, ...resto }) {
-  const src = canvas.tokens.get(origine);
+function risolviToken(descrittore) {
+  const src = canvas.tokens.get(descrittore.origine);
   if (!src) return null;
-  return { ...resto, origine: src, bersagli: bersagli.map(id => canvas.tokens.get(id)).filter(Boolean) };
+
+  const bersagli = descrittore.bersagli.map(id => canvas.tokens.get(id)).filter(Boolean);
+  if (descrittore.forma !== "lanciatore" && !bersagli.length) return null;
+
+  return { ...descrittore, origine: src, bersagli };
 }
 
 /*

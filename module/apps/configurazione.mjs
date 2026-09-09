@@ -181,9 +181,13 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     const origine = canvas.tokens.controlled[0];
     if (!origine) return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaToken"));
 
+    /* Senza bersagli, `proiettile` e `bersaglio` costruirebbero una Sequence vuota: premi
+       Prova e non succede niente, che sul bottone che la spec chiama "la funzione che conta"
+       e' il peggior esito possibile — non distingui "file sbagliato" da "manca il bersaglio".
+       `auto` non arriva mai qui senza bersagli: risolviForma lo fa diventare `lanciatore`. */
     const bersagli = Array.from(game.user.targets);
     const forma = risolviForma(riga.querySelector("[name=forma]").value || "auto", bersagli);
-    if (forma === "proiettile" && !bersagli.length)
+    if (forma !== "lanciatore" && !bersagli.length)
       return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaBersaglio"));
 
     await costruisci({ file, forma, origine, bersagli }, Sequence).play();

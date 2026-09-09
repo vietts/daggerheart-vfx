@@ -10,7 +10,7 @@
   "DHVFX.finestra.precompilate": "{n} righe precompilate dalle regole.",
   "DHVFX.finestra.senzaFile": "Questa riga non ha ancora un effetto.",
   "DHVFX.finestra.senzaToken": "Seleziona il token che lancia.",
-  "DHVFX.finestra.senzaBersaglio": "Un proiettile ha bisogno di un bersaglio (tasto T).",
+  "DHVFX.finestra.senzaBersaglio": "Questa forma ha bisogno di almeno un bersaglio (tasto T).",
   "DHVFX.finestra.importata": "Mappa importata.",
   "DHVFX.finestra.importoNonValido": "Il testo incollato non e' un JSON valido, o non e' un oggetto. La mappa non e' stata toccata.",
   "DHVFX.finestra.azioneFallita": "L'azione non e' andata a buon fine. Riprova.",

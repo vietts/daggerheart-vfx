@@ -10,7 +10,7 @@
   "DHVFX.finestra.precompilate": "{n} rows autofilled from the rules.",
   "DHVFX.finestra.senzaFile": "This row does not have an effect yet.",
   "DHVFX.finestra.senzaToken": "Select the token that is casting.",
-  "DHVFX.finestra.senzaBersaglio": "A projectile needs a target (T key).",
+  "DHVFX.finestra.senzaBersaglio": "This shape needs at least one target (T key).",
   "DHVFX.finestra.importata": "Map imported.",
   "DHVFX.finestra.importoNonValido": "The pasted text is not valid JSON, or is not an object. The map was not touched.",
   "DHVFX.finestra.azioneFallita": "The action did not complete. Please try again.",
