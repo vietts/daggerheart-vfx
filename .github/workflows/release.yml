@@ -1,0 +1,36 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: I test devono passare prima di pubblicare
+        run: npm test
+
+      # La riscrittura sta in tools/manifest-release.mjs, non qui: inline non era provabile,
+      # e infatti ci era gia' scappato un bug sulla lettura di process.argv.
+      - name: Allinea versione, download e manifest al tag
+        env:
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: node tools/manifest-release.mjs "$TAG" "$REPO"
+
+      - name: Impacchetta
+        run: cd module && zip -r ../module.zip .
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            module/module.json
+            module.zip
