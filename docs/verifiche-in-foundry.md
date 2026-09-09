@@ -30,10 +30,11 @@ i permessi (il container gira come uid 1000) e stampa un promemoria.
 **Alla prima installazione serve un riavvio del container perché il modulo compaia in
 Manage Modules.** Lo script stesso lo ricorda in fondo all'output, con l'avviso che
 conta: **non usare `docker restart`** — lascia un lock e il server sembra morto per
-320 secondi. Usare invece:
+320 secondi. Ma il lock non si rilascia da solo nemmeno con `docker stop`, e aspettare non
+serve (provato con 5 e con 15 secondi): va **rimosso fra lo stop e lo start, sempre**. Usare invece:
 
 ```sh
-ssh utente@host 'docker stop nome-container && sleep 15 && docker start nome-container'
+ssh utente@host 'docker stop nome-container; rmdir /opt/foundry/data/Config/options.json.lock 2>/dev/null; docker start nome-container'
 ```
 
 Dopo il riavvio, attiva il modulo da Configuration → Manage Modules e vai alla sezione
