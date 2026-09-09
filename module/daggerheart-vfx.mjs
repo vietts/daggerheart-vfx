@@ -3,6 +3,7 @@ import { datiAzione } from "./lib/chiavi.mjs";
 import { contesto } from "./lib/contesto.mjs";
 import { decidi } from "./lib/decisione.mjs";
 import { costruisci } from "./lib/scena.mjs";
+import { fileDaPrecaricare } from "./lib/preload.mjs";
 
 const mappa = () => game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
 const attivo = () => game.settings.get(MODULE_ID, SETTING_ATTIVO);
@@ -55,5 +56,29 @@ Hooks.on("daggerheart.postUseAction", async (action, config) => {
     await costruisci(risolto, Sequence).play();
   } catch (e) {
     console.error(`[${MODULE_ID}] errore giocando l'effetto, la giocata prosegue:`, e);
+  }
+});
+
+/*
+ * Le azioni delle carte di dominio possedute da chi ha un token in questa scena. Si guarda
+ * l'attore del token, non il token: le carte stanno sull'attore.
+ */
+function azioniInScena() {
+  const attori = new Set(canvas.tokens.placeables.map(t => t.actor).filter(Boolean));
+  return [...attori].map(a => a.items
+    .filter(i => i.type === "domainCard")
+    .flatMap(i => Object.values(i.system?.actions ?? {}).map(az => datiAzione({ ...az, item: i })))
+  );
+}
+
+Hooks.on("canvasReady", async () => {
+  try {
+    if (!attivo()) return;
+    const file = fileDaPrecaricare(azioniInScena(), mappa());
+    if (!file.length) return;
+    await Sequencer.Preloader.preloadForClients(file, true);
+    console.log(`[${MODULE_ID}] precaricati ${file.length} effetti per questa scena`);
+  } catch (e) {
+    console.error(`[${MODULE_ID}] preload fallito, si gioca lo stesso:`, e);
   }
 });
