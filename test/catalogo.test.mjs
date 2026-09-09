@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { azioniDiCarta, righeDaCarte, precompila } from "../module/lib/catalogo.mjs";
+import { azioniDiCarta, righeDaCarte, precompila, rigaValida, righeImportabili } from "../module/lib/catalogo.mjs";
 
 const F = "Compendium.daggerheart.domains.Item.AAA";
 const carta = (nome, dominio, azioni) => ({
@@ -105,4 +105,41 @@ test("una carta senza azioni, o con azioni di forma impensata, da' una lista vuo
   assert.deepEqual(azioniDiCarta({ system: { actions: "niente" } }), []);
   assert.deepEqual(azioniDiCarta(null), []);
   assert.deepEqual(azioniDiCarta({ system: { actions: { a: null, b: 42 } } }), []);
+});
+
+/* La mappa importata e' l'unico ingresso non fidato del modulo: qui si guarda il contenuto. */
+test("una riga importata vale se ha un file non vuoto e una forma nota, o nessuna forma", () => {
+  assert.equal(rigaValida({ file: "jb2a.x", forma: "proiettile" }), true);
+  assert.equal(rigaValida({ file: "jb2a.x" }), true);
+  assert.equal(rigaValida({ file: "jb2a.x", forma: null }), true);
+});
+
+test("una riga importata non vale se il file manca, non e' una stringa o e' vuoto", () => {
+  assert.equal(rigaValida({ file: 42, forma: "auto" }), false);
+  assert.equal(rigaValida({ forma: "auto" }), false);
+  assert.equal(rigaValida({ file: "   " }), false);
+  assert.equal(rigaValida("stringa"), false);
+  assert.equal(rigaValida(null), false);
+  assert.equal(rigaValida(["jb2a.x"]), false);
+});
+
+test("una forma inventata non entra: diventerebbe un lanciatore in silenzio", () => {
+  assert.equal(rigaValida({ file: "jb2a.x", forma: "pippo" }), false);
+});
+
+test("righeImportabili tiene le buone e dice quante ne ha scartate", () => {
+  const { mappa, scartate } = righeImportabili({
+    buona: { file: "jb2a.x", forma: "bersaglio" },
+    senzaForma: { file: "jb2a.y" },
+    fileNumero: { file: 42 },
+    formaInventata: { file: "jb2a.z", forma: "pippo" },
+    nulla: null
+  });
+  assert.deepEqual(Object.keys(mappa).sort(), ["buona", "senzaForma"]);
+  assert.equal(scartate, 3);
+});
+
+test("una mappa tutta malformata non lascia niente: chi chiama non deve scrivere", () => {
+  assert.deepEqual(righeImportabili({ a: null, b: 1 }), { mappa: {}, scartate: 2 });
+  assert.deepEqual(righeImportabili({}), { mappa: {}, scartate: 0 });
 });

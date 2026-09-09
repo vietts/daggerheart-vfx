@@ -1,5 +1,5 @@
 import { MODULE_ID, SETTING_MAPPA, FORME } from "../lib/costanti.mjs";
-import { righeDaCarte, precompila } from "../lib/catalogo.mjs";
+import { righeDaCarte, precompila, righeImportabili } from "../lib/catalogo.mjs";
 import { risolviForma } from "../lib/decisione.mjs";
 import { costruisci } from "../lib/scena.mjs";
 
@@ -228,8 +228,17 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     if (typeof mappa !== "object" || mappa === null || Array.isArray(mappa))
       return ui.notifications.error(game.i18n.localize("DHVFX.finestra.importoNonValido"));
 
-    await this.#inCoda(() => game.settings.set(MODULE_ID, SETTING_MAPPA, mappa));
-    ui.notifications.info(game.i18n.localize("DHVFX.finestra.importata"));
+    /* Il contenitore non basta: le righe si guardano una per una (lib/catalogo.mjs), e se
+       non ne resta nessuna non si scrive niente. L'import sostituisce l'intera mappa e non
+       c'e' annulla: un incolla sbagliato non deve poter cancellare tutte le assegnazioni. */
+    const { mappa: buone, scartate } = righeImportabili(mappa);
+    const n = Object.keys(buone).length;
+    if (!n) return ui.notifications.error(game.i18n.localize("DHVFX.finestra.importoNonValido"));
+
+    await this.#inCoda(() => game.settings.set(MODULE_ID, SETTING_MAPPA, buone));
+    ui.notifications.info(scartate
+      ? game.i18n.format("DHVFX.finestra.importataConScarti", { n, scartate })
+      : game.i18n.localize("DHVFX.finestra.importata"));
     this.render();
   }
 }

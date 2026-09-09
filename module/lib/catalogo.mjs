@@ -5,6 +5,7 @@
  * globale): qui dentro sono solo oggetti, e i test le costruiscono a mano.
  */
 
+import { FORME } from "./costanti.mjs";
 import { chiave, datiAzione } from "./chiavi.mjs";
 import { fileDaRegola, formaDaAzione } from "./regole.mjs";
 
@@ -73,4 +74,28 @@ export function precompila(righe, mappa) {
     nuova[r.chiave] = { file, forma: formaDaAzione(r) };
   }
   return nuova;
+}
+
+/*
+ * L'import e' per costruzione l'unico ingresso non fidato del modulo: la spec (§4.3) lo
+ * descrive come "il modo in cui la gente si scambia le mappe gia' fatte", cioe' testo che
+ * arriva da qualcun altro. Controllare il solo contenitore non basta.
+ *
+ * Cosa passava quando si guardava solo il contenitore: `{"k": "stringa"}`, `{"k": null}`,
+ * `{"k": {"file": 42}}` e soprattutto `forma: "pippo"`, che cade nel ramo else di costruisci
+ * e diventa un lanciatore — l'utente vede un effetto, quello sbagliato, e non ha modo di
+ * capire perche'. Un `file` non stringa invece esplode dentro Sequencer al momento della
+ * giocata, dove il try/catch lo inghiotte correttamente: effetto muto per sempre su quella
+ * carta, senza un indizio in finestra.
+ */
+export function rigaValida(riga) {
+  if (!riga || typeof riga !== "object" || Array.isArray(riga)) return false;
+  if (typeof riga.file !== "string" || !riga.file.trim()) return false;
+  return riga.forma == null || FORME.includes(riga.forma);
+}
+
+/* Le righe buone di una mappa importata, e quante ne sono state buttate via. */
+export function righeImportabili(mappa) {
+  const voci = Object.entries(mappa).filter(([, riga]) => rigaValida(riga));
+  return { mappa: Object.fromEntries(voci), scartate: Object.keys(mappa).length - voci.length };
 }
