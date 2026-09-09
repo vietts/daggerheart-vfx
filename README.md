@@ -23,6 +23,19 @@ l'effetto sul token selezionato senza passare dalla scheda.
 Le assegnazioni fatte a mano vincono sempre: *Precompila* non sovrascrive mai una riga che
 ha già un effetto.
 
+## Copiare il modulo su un server di prova
+
+`deploy.sh` copia `module/` dentro la cartella dei moduli di un'installazione Foundry. Il
+server non è scritto nel repo: le tre variabili sono obbligatorie e senza di loro lo script
+si ferma prima di toccare la rete.
+
+```sh
+FOUNDRY_HOST=utente@host \
+FOUNDRY_MODULES_DIR=/percorso/a/Data/modules \
+FOUNDRY_CONTAINER=nome-container \
+./deploy.sh
+```
+
 ## Limiti dichiarati
 
 - Copre le **carte di dominio**, non le armi e non gli attacchi degli avversari.
