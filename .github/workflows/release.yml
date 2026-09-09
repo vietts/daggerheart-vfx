@@ -18,21 +18,13 @@ jobs:
       - name: I test devono passare prima di pubblicare
         run: npm test
 
-      - name: Allinea versione e download del manifest al tag
+      # La riscrittura sta in tools/manifest-release.mjs, non qui: inline non era provabile,
+      # e infatti ci era gia' scappato un bug sulla lettura di process.argv.
+      - name: Allinea versione, download e manifest al tag
         env:
           TAG: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
-        run: |
-          V="${TAG#v}"
-          node -e '
-            const fs = require("fs");
-            const [, versione, repo] = process.argv;
-            const p = "module/module.json";
-            const m = JSON.parse(fs.readFileSync(p, "utf8"));
-            m.version = versione;
-            m.download = `https://github.com/${repo}/releases/download/v${versione}/module.zip`;
-            fs.writeFileSync(p, JSON.stringify(m, null, 2));
-          ' "$V" "$REPO"
+        run: node tools/manifest-release.mjs "$TAG" "$REPO"
 
       - name: Impacchetta
         run: cd module && zip -r ../module.zip .
