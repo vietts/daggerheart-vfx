@@ -165,11 +165,12 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
        durante i quali la mappa non deve restare "prenotata" da nessuno. */
     const carte = await this.#carteDelCompendio();
 
-    const aggiunte = await this.#inCoda(() => {
+    const aggiunte = await this.#inCoda(async () => {
       const mappa = this.#mappa();
       const nuova = precompila(righeDaCarte(carte, mappa), mappa);
       const n = Object.keys(nuova).length - Object.keys(mappa).length;
-      return game.settings.set(MODULE_ID, SETTING_MAPPA, nuova).then(() => n);
+      await game.settings.set(MODULE_ID, SETTING_MAPPA, nuova);
+      return n;
     });
 
     ui.notifications.info(game.i18n.format("DHVFX.finestra.precompilate", { n: aggiunte }));
