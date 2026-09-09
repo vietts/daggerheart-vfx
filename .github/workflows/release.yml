@@ -26,7 +26,7 @@ jobs:
           V="${TAG#v}"
           node -e '
             const fs = require("fs");
-            const [, , versione, repo] = process.argv;
+            const [, versione, repo] = process.argv;
             const p = "module/module.json";
             const m = JSON.parse(fs.readFileSync(p, "utf8"));
             m.version = versione;
