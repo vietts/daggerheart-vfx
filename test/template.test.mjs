@@ -23,6 +23,18 @@ function contaRadici(html) {
   return radici;
 }
 
+/*
+ * Il caso negativo prima di quello vero: senza, `contaRadici` passerebbe anche se restituisse
+ * sempre 1, cioe' il presidio non presidierebbe niente. E il guasto che protegge si manifesta
+ * come "la finestra non si apre", con l'errore solo in console.
+ */
+test("contaRadici sa contare piu' di una radice", () => {
+  assert.equal(contaRadici("<div>uno</div><div>due</div>"), 2);
+  assert.equal(contaRadici("<div><p>solo annidati</p><p>qui</p></div>"), 1);
+  assert.equal(contaRadici("<div>uno</div><input name=\"due\"><br>"), 3);
+  assert.equal(contaRadici("<!-- un commento non e' una radice --><div>uno</div>"), 1);
+});
+
 test("il template della finestra ha una sola radice", () => {
   const html = readFileSync(
     fileURLToPath(new URL("../module/apps/configurazione.hbs", import.meta.url)), "utf8");
