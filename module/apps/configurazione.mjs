@@ -22,10 +22,36 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
      le scritture successive: la coda si "ripulisce" prima di mettersi in fila di nuovo. */
   #codaScritture = Promise.resolve();
 
+  /* Le 210 carte del compendio si leggono una volta sola per finestra: un Precompila ne
+     faceva tre letture (contesto iniziale, precompila, render finale). */
+  #carte = null;
+
+  /*
+   * L'UNICA porta sulla mappa. Ci passano tutte e tre le scritture — una riga, Precompila,
+   * Importa — perche' altrimenti si perdono dati sulla sequenza di click piu' naturale che
+   * esista: cliccare un bottone della barra mentre un <input name=file> ha una modifica non
+   * committata fa scattare `change` sul blur PRIMA del click. La #salvaRiga si accoda e resta
+   * in attesa del round-trip di settings.set, durante il quale settings.get restituisce ancora
+   * il valore vecchio; il click leggerebbe stantio e riscriverebbe, e siccome poi si fa
+   * render() l'utente vedrebbe la riga appena digitata sparire sotto i propri occhi.
+   *
+   * La regola che rende la fila sufficiente, e che vale per ogni funzione passata di qui:
+   * fra il `get` e il `set` della mappa non ci deve mai essere un `await` che non sia il
+   * `set` stesso. Tutto il resto (leggere il compendio, aprire un dialogo, fare il parse di
+   * un JSON) si fa PRIMA, fuori dalla coda.
+   */
+  #inCoda(fn) {
+    const p = this.#codaScritture.then(() => {}, () => {}).then(fn);
+    this.#codaScritture = p;
+    return p;
+  }
+
+  #mappa() {
+    return game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
+  }
+
   async _prepareContext() {
-    const mappa = game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
-    const carte = await this.#carteDelCompendio();
-    const righe = righeDaCarte(carte, mappa);
+    const righe = righeDaCarte(await this.#carteDelCompendio(), this.#mappa());
     return {
       righe,
       forme: FORME,
@@ -39,10 +65,11 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   async #carteDelCompendio() {
+    if (this.#carte) return this.#carte;
     const pack = game.packs.get("daggerheart.domains");
-    if (!pack) return [];
+    if (!pack) return (this.#carte = []);
     const documenti = await pack.getDocuments();
-    return documenti.map(d => d.toObject());
+    return (this.#carte = documenti.map(d => d.toObject()));
   }
 
   /*
@@ -115,22 +142,26 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     const file = riga.querySelector("[name=file]").value.trim();
     const forma = riga.querySelector("[name=forma]").value;
 
-    const scrittura = this.#codaScritture.then(() => {}, () => {}).then(async () => {
-      const mappa = { ...(game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {}) };
+    return this.#inCoda(() => {
+      const mappa = { ...this.#mappa() };
       if (file) mappa[chiave] = { file, forma: forma || "auto" };
       else delete mappa[chiave];
-      await game.settings.set(MODULE_ID, SETTING_MAPPA, mappa);
+      return game.settings.set(MODULE_ID, SETTING_MAPPA, mappa);
     });
-    this.#codaScritture = scrittura;
-    return scrittura;
   }
 
   async #precompila() {
-    const mappa = game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
-    const righe = righeDaCarte(await this.#carteDelCompendio(), mappa);
-    const nuova = precompila(righe, mappa);
-    const aggiunte = Object.keys(nuova).length - Object.keys(mappa).length;
-    await game.settings.set(MODULE_ID, SETTING_MAPPA, nuova);
+    /* La lettura del compendio sta fuori dalla coda: e' una lettura, e sono centinaia di ms
+       durante i quali la mappa non deve restare "prenotata" da nessuno. */
+    const carte = await this.#carteDelCompendio();
+
+    const aggiunte = await this.#inCoda(() => {
+      const mappa = this.#mappa();
+      const nuova = precompila(righeDaCarte(carte, mappa), mappa);
+      const n = Object.keys(nuova).length - Object.keys(mappa).length;
+      return game.settings.set(MODULE_ID, SETTING_MAPPA, nuova).then(() => n);
+    });
+
     ui.notifications.info(game.i18n.format("DHVFX.finestra.precompilate", { n: aggiunte }));
     this.render();
   }
@@ -159,8 +190,7 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   async #esporta() {
-    const mappa = game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
-    foundry.utils.saveDataToFile(JSON.stringify(mappa, null, 2), "application/json",
+    foundry.utils.saveDataToFile(JSON.stringify(this.#mappa(), null, 2), "application/json",
       `${MODULE_ID}-mappa.json`);
   }
 
@@ -169,6 +199,8 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
    * gia' assegnate. DialogV2.prompt rigetta la promessa quando l'utente annulla (non e' un
    * errore), e un JSON malformato o di forma sbagliata deve fermarsi con un messaggio, non
    * con un'eccezione persa o una mappa corrotta.
+   *
+   * Il dialogo e il parse stanno fuori dalla coda: dentro ci va la sola scrittura.
    */
   async #importa() {
     let contenuto;
@@ -192,7 +224,7 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     if (typeof mappa !== "object" || mappa === null || Array.isArray(mappa))
       return ui.notifications.error(game.i18n.localize("DHVFX.finestra.importoNonValido"));
 
-    await game.settings.set(MODULE_ID, SETTING_MAPPA, mappa);
+    await this.#inCoda(() => game.settings.set(MODULE_ID, SETTING_MAPPA, mappa));
     ui.notifications.info(game.i18n.localize("DHVFX.finestra.importata"));
     this.render();
   }
