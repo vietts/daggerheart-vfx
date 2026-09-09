@@ -1,0 +1,22 @@
+{
+  "id": "daggerheart-vfx",
+  "title": "Daggerheart VFX",
+  "description": "Effetti visivi per le carte di dominio di Daggerheart.",
+  "version": "0.1.0",
+  "compatibility": { "minimum": "13", "verified": "14" },
+  "authors": [{ "name": "Francesco Nguyen" }],
+  "esmodules": ["daggerheart-vfx.mjs"],
+  "languages": [
+    { "lang": "it", "name": "Italiano", "path": "lang/it.json" },
+    { "lang": "en", "name": "English", "path": "lang/en.json" }
+  ],
+  "relationships": {
+    "systems": [
+      { "id": "daggerheart", "type": "system", "compatibility": { "minimum": "2.9.0" } }
+    ],
+    "requires": [
+      { "id": "sequencer", "type": "module" },
+      { "id": "JB2A_DnD5e", "type": "module" }
+    ]
+  }
+}
