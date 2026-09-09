@@ -15,6 +15,7 @@
   "DHVFX.finestra.importataConScarti": "Mappa importata: {n} righe valide, {scartate} scartate (malformate).",
   "DHVFX.finestra.importoNonValido": "Il testo incollato non e' una mappa valida: JSON malformato, oppure nessuna riga utilizzabile. La mappa non e' stata toccata.",
   "DHVFX.finestra.azioneFallita": "L'azione non e' andata a buon fine. Riprova.",
+  "DHVFX.finestra.compendioAssente": "Compendio {pack} non trovato: la finestra resta vuota. Controlla che il system Daggerheart sia attivo in questo mondo.",
   "DHVFX.settings.menu.name": "Effetti delle carte di dominio",
   "DHVFX.settings.menu.label": "Apri la finestra",
   "DHVFX.settings.menu.hint": "Assegna un effetto visivo a ogni azione delle carte di dominio."

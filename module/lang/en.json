@@ -15,6 +15,7 @@
   "DHVFX.finestra.importataConScarti": "Map imported: {n} valid rows, {scartate} discarded (malformed).",
   "DHVFX.finestra.importoNonValido": "The pasted text is not a valid map: malformed JSON, or no usable row. The map was not touched.",
   "DHVFX.finestra.azioneFallita": "The action did not complete. Please try again.",
+  "DHVFX.finestra.compendioAssente": "Compendium {pack} not found: the window stays empty. Check that the Daggerheart system is active in this world.",
   "DHVFX.settings.menu.name": "Domain card effects",
   "DHVFX.settings.menu.label": "Open the window",
   "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card action."

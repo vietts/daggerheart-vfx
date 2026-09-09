@@ -5,13 +5,15 @@ import { costruisci } from "../lib/scena.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/* Il compendio delle carte di dominio del system. La finestra non ha altra fonte. */
+const COMPENDIO = "daggerheart.domains";
+
 export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: `${MODULE_ID}-configurazione`,
     tag: "div",
     window: { title: "DHVFX.finestra.titolo", resizable: true },
-    position: { width: 780, height: 640 },
-    actions: {}
+    position: { width: 780, height: 640 }
   };
 
   /* Una PART, una radice. Vedi test/template.test.mjs. */
@@ -64,10 +66,18 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     };
   }
 
+  /*
+   * Se il compendio non c'e' (system aggiornato, pack rinominato, mondo sbagliato) la finestra
+   * si apriva vuota e muta: `0 · 0 · 0` e nient'altro, che si legge come "il modulo e' rotto".
+   * La cache tiene anche l'assenza, cosi' la notifica non si ripete a ogni render.
+   */
   async #carteDelCompendio() {
     if (this.#carte) return this.#carte;
-    const pack = game.packs.get("daggerheart.domains");
-    if (!pack) return (this.#carte = []);
+    const pack = game.packs.get(COMPENDIO);
+    if (!pack) {
+      ui.notifications.error(game.i18n.format("DHVFX.finestra.compendioAssente", { pack: COMPENDIO }));
+      return (this.#carte = []);
+    }
     const documenti = await pack.getDocuments();
     return (this.#carte = documenti.map(d => d.toObject()));
   }
