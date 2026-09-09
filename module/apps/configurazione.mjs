@@ -78,8 +78,15 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
       ui.notifications.error(game.i18n.format("DHVFX.finestra.compendioAssente", { pack: COMPENDIO }));
       return (this.#carte = []);
     }
+    /*
+     * `uuid` va tenuto a mano perche' toObject() lo butta via, e senza di lui questo cammino
+     * non sa da dove viene la carta. Un documento *dentro* il compendio non ha
+     * _stats.compendiumSource: quel campo lo acquista la COPIA quando finisce su una scheda.
+     * Senza uuid la finestra ripiegava sui nomi e salvava chiavi che il gioco, che legge la
+     * copia e quindi la fonte vera, non ritrovava mai: mappa piena e nessun effetto.
+     */
     const documenti = await pack.getDocuments();
-    return (this.#carte = documenti.map(d => d.toObject()));
+    return (this.#carte = documenti.map(d => ({ ...d.toObject(), uuid: d.uuid })));
   }
 
   /*

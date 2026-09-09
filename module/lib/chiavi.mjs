@@ -11,7 +11,14 @@
 export function datiAzione(action) {
   const carta = action?.item ?? null;
   return {
-    compendiumSource: carta?._stats?.compendiumSource ?? null,
+    /*
+     * Due cammini arrivano qui e vedono la stessa carta in due stati diversi. La copia su una
+     * scheda porta _stats.compendiumSource; l'originale dentro il compendio NO — quel campo
+     * dice "da dove sono stata copiata", e l'originale non e' copia di nessuno. Il suo uuid
+     * pero' ha esattamente la stessa forma. Senza questo ripiego i due cammini producono
+     * chiavi diverse per la stessa azione, e nessuna riga viene mai ritrovata.
+     */
+    compendiumSource: carta?._stats?.compendiumSource ?? carta?.uuid ?? null,
     nomeCarta: carta?.name ?? null,
     idAzione: action?._id ?? null,
     nomeAzione: action?.name ?? null,
