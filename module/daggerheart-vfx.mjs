@@ -4,6 +4,7 @@ import { contesto } from "./lib/contesto.mjs";
 import { decidi } from "./lib/decisione.mjs";
 import { costruisci } from "./lib/scena.mjs";
 import { fileDaPrecaricare } from "./lib/preload.mjs";
+import { ConfigurazioneVFX } from "./apps/configurazione.mjs";
 
 const mappa = () => game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
 const attivo = () => game.settings.get(MODULE_ID, SETTING_ATTIVO);
@@ -19,6 +20,15 @@ Hooks.once("init", () => {
      e ha una finestra sua. config: false la tiene fuori dall'elenco. */
   game.settings.register(MODULE_ID, SETTING_MAPPA, {
     scope: "world", config: false, type: Object, default: {}
+  });
+
+  game.settings.registerMenu(MODULE_ID, "configurazione", {
+    name: "DHVFX.settings.menu.name",
+    label: "DHVFX.settings.menu.label",
+    hint: "DHVFX.settings.menu.hint",
+    icon: "fas fa-wand-sparkles",
+    type: ConfigurazioneVFX,
+    restricted: true
   });
 });
 

@@ -1,4 +1,18 @@
 {
   "DHVFX.settings.attivo.name": "Visual effects enabled",
-  "DHVFX.settings.attivo.hint": "When a character uses a domain card action, play the assigned effect."
+  "DHVFX.settings.attivo.hint": "When a character uses a domain card action, play the assigned effect.",
+  "DHVFX.finestra.titolo": "Domain card effects",
+  "DHVFX.finestra.tuttiIDomini": "all domains",
+  "DHVFX.finestra.cerca": "search for a card",
+  "DHVFX.finestra.precompila": "Autofill",
+  "DHVFX.finestra.esporta": "Export",
+  "DHVFX.finestra.importa": "Import",
+  "DHVFX.finestra.precompilate": "{n} rows autofilled from the rules.",
+  "DHVFX.finestra.senzaFile": "This row does not have an effect yet.",
+  "DHVFX.finestra.senzaToken": "Select the token that is casting.",
+  "DHVFX.finestra.senzaBersaglio": "A projectile needs a target (T key).",
+  "DHVFX.finestra.importata": "Map imported.",
+  "DHVFX.settings.menu.name": "Domain card effects",
+  "DHVFX.settings.menu.label": "Open the window",
+  "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card action."
 }

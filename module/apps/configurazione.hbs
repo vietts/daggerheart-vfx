@@ -1,0 +1,28 @@
+<div class="dhvfx">
+  <header class="dhvfx-barra">
+    <select name="dominio">
+      <option value="">{{localize "DHVFX.finestra.tuttiIDomini"}}</option>
+      {{#each domini}}<option value="{{this}}">{{this}}</option>{{/each}}
+    </select>
+    <input type="search" name="cerca" placeholder="{{localize "DHVFX.finestra.cerca"}}">
+    <span class="dhvfx-conteggio">{{conteggio.totale}} · {{conteggio.assegnate}} · {{conteggio.vuote}}</span>
+    <button type="button" data-azione="precompila">{{localize "DHVFX.finestra.precompila"}}</button>
+    <button type="button" data-azione="esporta">{{localize "DHVFX.finestra.esporta"}}</button>
+    <button type="button" data-azione="importa">{{localize "DHVFX.finestra.importa"}}</button>
+  </header>
+
+  <ol class="dhvfx-righe">
+    {{#each righe}}
+    <li class="dhvfx-riga" data-chiave="{{this.chiave}}" data-dominio="{{this.dominio}}">
+      <span class="dhvfx-titolo">{{this.nomeCarta}} — {{this.nomeAzione}}</span>
+      <input type="text" name="file" value="{{this.file}}" placeholder="jb2a...">
+      <select name="forma">
+        <option value="">—</option>
+        {{#each ../forme}}<option value="{{this}}">{{this}}</option>{{/each}}
+      </select>
+      <button type="button" data-azione="sfoglia">🔍</button>
+      <button type="button" data-azione="prova">▶</button>
+    </li>
+    {{/each}}
+  </ol>
+</div>
