@@ -17,7 +17,14 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
   };
 
   /* Una PART, una radice. Vedi test/template.test.mjs. */
-  static PARTS = { corpo: { template: `modules/${MODULE_ID}/apps/configurazione.hbs` } };
+  /* `scrollable` fa ricordare al mixin la posizione della lista fra un render e l'altro:
+     senza, ogni Precompila ti riporta in cima a 284 righe. */
+  static PARTS = {
+    corpo: {
+      template: `modules/${MODULE_ID}/apps/configurazione.hbs`,
+      scrollable: [".dhvfx-righe"]
+    }
+  };
 
   /* Coda delle scritture sulla mappa: due `change` ravvicinati su righe diverse leggerebbero
      altrimenti la stessa mappa e il secondo sovrascriverebbe il primo. Un fallimento non blocca

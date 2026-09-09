@@ -1,0 +1,95 @@
+/*
+ * Il foglio di stile esiste per una ragione sola, e non e' estetica: senza, la lista di 284
+ * righe non scorre e se ne vede solo la prima schermata. La finestra diventa inutilizzabile.
+ *
+ * La ricetta e' quella classica del flexbox: perche' un figlio possa scorrere dentro un
+ * genitore a altezza fissa servono `min-height: 0` su ogni anello della catena — senza,
+ * un elemento flex non scende mai sotto la propria altezza naturale e il contenuto trabocca
+ * invece di scorrere.
+ */
+
+#daggerheart-vfx-configurazione .window-content {
+  display: flex;
+  overflow: hidden;   /* a scorrere e' la lista, non la finestra intera */
+  padding: 0.5rem;
+}
+
+.dhvfx {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* La barra resta ferma in cima mentre la lista scorre sotto. */
+.dhvfx-barra {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-border-light-tertiary, #7a7971);
+}
+
+.dhvfx-barra [name="dominio"] { flex: 0 0 10rem; }
+.dhvfx-barra [name="cerca"]   { flex: 1 1 8rem; min-width: 6rem; }
+
+.dhvfx-conteggio {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.dhvfx-righe {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0 0.4rem 0 0;
+}
+
+/*
+ * Una riga per azione: il titolo prende tutta la larghezza, i comandi stanno sotto in una
+ * griglia. Con 284 righe la densita' conta piu' dell'eleganza.
+ */
+.dhvfx-riga {
+  display: grid;
+  grid-template-columns: 1fr 9rem auto auto;
+  grid-template-areas:
+    "titolo titolo titolo titolo"
+    "file   forma  sfoglia prova";
+  gap: 0.25rem 0.35rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-border-light-tertiary, #b5b3a4);
+}
+
+.dhvfx-riga:hover { background: rgba(0, 0, 0, 0.05); }
+
+.dhvfx-titolo {
+  grid-area: titolo;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.dhvfx-riga [name="file"]  { grid-area: file; font-family: monospace; font-size: 0.75rem; }
+.dhvfx-riga [name="forma"] { grid-area: forma; }
+.dhvfx-riga [data-azione="sfoglia"] { grid-area: sfoglia; }
+.dhvfx-riga [data-azione="prova"]   { grid-area: prova; }
+
+.dhvfx-riga button {
+  flex: 0 0 auto;
+  width: 2.2rem;
+  line-height: 1.6;
+  padding: 0;
+}
+
+/*
+ * Una riga ancora senza effetto si riconosce a colpo d'occhio scorrendo la lista.
+ * Il selettore guarda l'attributo `value`, cioe' com'era al render: e' quello che serve,
+ * perche' cio' che si cerca sono le righe nate vuote.
+ */
+.dhvfx-riga:has([name="file"][value=""]) .dhvfx-titolo { opacity: 0.55; }

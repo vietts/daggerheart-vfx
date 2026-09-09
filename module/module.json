@@ -3,20 +3,52 @@
   "title": "Daggerheart VFX",
   "description": "Effetti visivi per le carte di dominio di Daggerheart.",
   "version": "0.1.0",
-  "compatibility": { "minimum": "13", "verified": "14" },
-  "authors": [{ "name": "Francesco Nguyen" }],
-  "esmodules": ["daggerheart-vfx.mjs"],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "Francesco Nguyen"
+    }
+  ],
+  "esmodules": [
+    "daggerheart-vfx.mjs"
+  ],
+  "styles": [
+    "styles/daggerheart-vfx.css"
+  ],
   "languages": [
-    { "lang": "it", "name": "Italiano", "path": "lang/it.json" },
-    { "lang": "en", "name": "English", "path": "lang/en.json" }
+    {
+      "lang": "it",
+      "name": "Italiano",
+      "path": "lang/it.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
   ],
   "relationships": {
     "systems": [
-      { "id": "daggerheart", "type": "system", "compatibility": { "minimum": "2.9.0" } }
+      {
+        "id": "daggerheart",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.9.0"
+        }
+      }
     ],
     "requires": [
-      { "id": "sequencer", "type": "module" },
-      { "id": "JB2A_DnD5e", "type": "module" }
+      {
+        "id": "sequencer",
+        "type": "module"
+      },
+      {
+        "id": "JB2A_DnD5e",
+        "type": "module"
+      }
     ]
   },
   "manifest": "https://github.com/vietts/daggerheart-vfx/releases/latest/download/module.json",
