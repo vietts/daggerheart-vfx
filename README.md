@@ -87,6 +87,22 @@ cui un effetto sembra non funzionare o esce deformato — un'esplosione con form
 **Esporta** scarica un JSON con tutte le assegnazioni, **Importa** lo rimette. È il modo per
 spostarla fra mondi o passarla a qualcun altro.
 
+## Effetti sulle tile di Monk's
+
+Con **Monk's Active Tile Triggers** attivo, fra le azioni di una tile compare il gruppo
+*Daggerheart VFX* con l'azione **Effetto JB2A**:
+
+- **Effetto**: la chiave Sequencer, come nella finestra (proiettili senza la lunghezza).
+- **Su chi**: i token scelti col selettore di Monk's (cliccati sulla mappa, chi ha attivato
+  la tile, i selezionati, i risultati dell'azione prima) oppure **i bersagli** (tasto T) di
+  chi attiva la tile.
+- **Forma**: *sopra i token*, oppure *proiettile verso* altri token o i bersagli.
+- **Tinta** e **scala**, facoltative.
+
+L'azione passa i suoi token a quella dopo, quindi "fumo nero sui cultisti, poi mostrali con
+dissolvenza" sono due azioni in fila: *Effetto JB2A* sui token scelti, poi *Mostra/Nascondi*
+sui risultati precedenti.
+
 ## Copiare il modulo su un server
 
 `deploy.sh` copia `module/` dentro la cartella dei moduli di un'installazione Foundry. Il

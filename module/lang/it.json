@@ -18,5 +18,19 @@
   "DHVFX.finestra.compendioAssente": "Compendio {pack} non trovato: la finestra resta vuota. Controlla che il system Daggerheart sia attivo in questo mondo.",
   "DHVFX.settings.menu.name": "Effetti visivi di carte e avversari",
   "DHVFX.settings.menu.label": "Apri la finestra",
-  "DHVFX.settings.menu.hint": "Assegna un effetto visivo a ogni azione delle carte di dominio e degli avversari."
+  "DHVFX.settings.menu.hint": "Assegna un effetto visivo a ogni azione delle carte di dominio e degli avversari.",
+  "DHVFX.monks.effetto": "Effetto JB2A",
+  "DHVFX.monks.file": "Effetto",
+  "DHVFX.monks.fileAiuto": "La chiave Sequencer, per esempio jb2a.smoke.puff.centered.grey. Per un proiettile togli la lunghezza finale (.30ft).",
+  "DHVFX.monks.chi": "Su chi",
+  "DHVFX.monks.quali": "Token",
+  "DHVFX.monks.chiEntita": "token scelti qui sotto",
+  "DHVFX.monks.bersagli": "i bersagli di chi attiva la tile",
+  "DHVFX.monks.forma": "Forma",
+  "DHVFX.monks.sopra": "sopra i token",
+  "DHVFX.monks.proiettile": "proiettile verso…",
+  "DHVFX.monks.verso": "Verso",
+  "DHVFX.monks.tinta": "Tinta",
+  "DHVFX.monks.tintaAiuto": "Facoltativa, un colore come #1a1a1a.",
+  "DHVFX.monks.scala": "Scala"
 }

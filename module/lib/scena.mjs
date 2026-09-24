@@ -20,3 +20,23 @@ export function costruisci({ file, forma, origine, bersagli }, Sequence) {
 
   return s;
 }
+
+/*
+ * La variante per le tile di Monk's: li' non c'e' una carta che dice la forma, la sceglie chi
+ * prepara la tile. Con delle destinazioni e' un proiettile da ogni origine a ognuna di esse;
+ * senza, l'effetto si appoggia su ogni origine. Tinta e scala sono facoltative.
+ */
+export function costruisciLibero({ file, origini, destinazioni = [], tinta = null, scala = 1 }, Sequence) {
+  const s = new Sequence();
+  const rifinisci = e => (tinta ? e.tint(tinta) : e);
+
+  for (const o of origini) {
+    if (destinazioni.length) {
+      for (const d of destinazioni) rifinisci(s.effect().file(file).atLocation(o).stretchTo(d));
+    } else {
+      rifinisci(s.effect().file(file).atLocation(o).scaleToObject(scala));
+    }
+  }
+
+  return s;
+}

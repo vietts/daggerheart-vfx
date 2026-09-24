@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { costruisci } from "../module/lib/scena.mjs";
+import { costruisci, costruisciLibero } from "../module/lib/scena.mjs";
 
 /* Una Sequence finta che registra le chiamate invece di disegnare. */
 function SequenceFinta() {
@@ -38,4 +38,34 @@ test("la forma lanciatore ignora i bersagli e sta sull'origine", () => {
 test("costruisci non gioca: restituisce la sequenza, e' chi chiama a decidere quando", () => {
   const s = costruisci(desc("lanciatore", []), SequenceFinta);
   assert.ok(s instanceof SequenceFinta);
+});
+
+/* costruisciLibero: la finta registra anche la tinta. */
+function SequenceTinta() {
+  SequenceFinta.call(this);
+  const effetto = this.effect();
+  effetto.tint = c => (this.chiamate.push(["tint", c]), effetto);
+}
+
+test("libero senza destinazioni si appoggia su ogni origine, alla scala scelta", () => {
+  const s = costruisciLibero({ file: "jb2a.x", origini: ["A", "B"], scala: 1.5 }, SequenceTinta);
+  assert.deepEqual(s.chiamate, [
+    ["file", "jb2a.x"], ["atLocation", "A"], ["scaleToObject", 1.5],
+    ["file", "jb2a.x"], ["atLocation", "B"], ["scaleToObject", 1.5]
+  ]);
+});
+
+test("libero con destinazioni tende un proiettile per ogni coppia", () => {
+  const s = costruisciLibero({ file: "jb2a.x", origini: ["A"], destinazioni: ["T1", "T2"] }, SequenceTinta);
+  assert.deepEqual(s.chiamate, [
+    ["file", "jb2a.x"], ["atLocation", "A"], ["stretchTo", "T1"],
+    ["file", "jb2a.x"], ["atLocation", "A"], ["stretchTo", "T2"]
+  ]);
+});
+
+test("la tinta si aggiunge solo se c'e'", () => {
+  const s = costruisciLibero({ file: "jb2a.x", origini: ["A"], tinta: "#1a1a1a" }, SequenceTinta);
+  assert.deepEqual(s.chiamate.at(-1), ["tint", "#1a1a1a"]);
+  const senza = costruisciLibero({ file: "jb2a.x", origini: ["A"] }, SequenceTinta);
+  assert.ok(!senza.chiamate.some(c => c[0] === "tint"));
 });

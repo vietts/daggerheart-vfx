@@ -18,5 +18,19 @@
   "DHVFX.finestra.compendioAssente": "Compendium {pack} not found: the window stays empty. Check that the Daggerheart system is active in this world.",
   "DHVFX.settings.menu.name": "Card and adversary effects",
   "DHVFX.settings.menu.label": "Open the window",
-  "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card and adversary action."
+  "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card and adversary action.",
+  "DHVFX.monks.effetto": "JB2A effect",
+  "DHVFX.monks.file": "Effect",
+  "DHVFX.monks.fileAiuto": "The Sequencer key, e.g. jb2a.smoke.puff.centered.grey. For a projectile drop the trailing length (.30ft).",
+  "DHVFX.monks.chi": "On whom",
+  "DHVFX.monks.quali": "Tokens",
+  "DHVFX.monks.chiEntita": "tokens chosen below",
+  "DHVFX.monks.bersagli": "the targets of whoever triggers the tile",
+  "DHVFX.monks.forma": "Shape",
+  "DHVFX.monks.sopra": "on the tokens",
+  "DHVFX.monks.proiettile": "projectile towards…",
+  "DHVFX.monks.verso": "Towards",
+  "DHVFX.monks.tinta": "Tint",
+  "DHVFX.monks.tintaAiuto": "Optional, a colour like #1a1a1a.",
+  "DHVFX.monks.scala": "Scale"
 }

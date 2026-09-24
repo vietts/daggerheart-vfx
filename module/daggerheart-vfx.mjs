@@ -6,6 +6,7 @@ import { costruisci } from "./lib/scena.mjs";
 import { fileDaPrecaricare } from "./lib/preload.mjs";
 import { azioniDiCarta, azioniDiAvversario } from "./lib/catalogo.mjs";
 import { ConfigurazioneVFX } from "./apps/configurazione.mjs";
+import "./monks.mjs";
 
 const mappa = () => game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
 const attivo = () => game.settings.get(MODULE_ID, SETTING_ATTIVO);
