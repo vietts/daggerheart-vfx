@@ -1,9 +1,9 @@
 {
   "DHVFX.settings.attivo.name": "Effetti visivi attivi",
-  "DHVFX.settings.attivo.hint": "Quando un personaggio usa un'azione di una carta di dominio, gioca l'effetto assegnato.",
-  "DHVFX.finestra.titolo": "Effetti delle carte di dominio",
-  "DHVFX.finestra.tuttiIDomini": "tutti i domini",
-  "DHVFX.finestra.cerca": "cerca una carta",
+  "DHVFX.settings.attivo.hint": "Quando un personaggio usa un'azione di una carta di dominio, o un avversario usa un attacco o una feature, gioca l'effetto assegnato.",
+  "DHVFX.finestra.titolo": "Effetti visivi di carte e avversari",
+  "DHVFX.finestra.tuttiIDomini": "tutto",
+  "DHVFX.finestra.cerca": "cerca una carta o un avversario",
   "DHVFX.finestra.precompila": "Precompila",
   "DHVFX.finestra.esporta": "Esporta",
   "DHVFX.finestra.importa": "Importa",
@@ -16,7 +16,7 @@
   "DHVFX.finestra.importoNonValido": "Il testo incollato non e' una mappa valida: JSON malformato, oppure nessuna riga utilizzabile. La mappa non e' stata toccata.",
   "DHVFX.finestra.azioneFallita": "L'azione non e' andata a buon fine. Riprova.",
   "DHVFX.finestra.compendioAssente": "Compendio {pack} non trovato: la finestra resta vuota. Controlla che il system Daggerheart sia attivo in questo mondo.",
-  "DHVFX.settings.menu.name": "Effetti delle carte di dominio",
+  "DHVFX.settings.menu.name": "Effetti visivi di carte e avversari",
   "DHVFX.settings.menu.label": "Apri la finestra",
-  "DHVFX.settings.menu.hint": "Assegna un effetto visivo a ogni azione delle carte di dominio."
+  "DHVFX.settings.menu.hint": "Assegna un effetto visivo a ogni azione delle carte di dominio e degli avversari."
 }

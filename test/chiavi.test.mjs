@@ -87,3 +87,52 @@ test("compendiumSource vince sull'uuid quando ci sono entrambi", () => {
     item: { name: "C", _stats: { compendiumSource: "Compendium.vera.Item.aaa" }, uuid: "Compendium.altra.Item.bbb" } };
   assert.equal(chiave(datiAzione(misto)), "Compendium.vera.Item.aaa::a1");
 });
+
+/*
+ * Gli avversari, con i dati veri dell'Archmage visti in Foundry il 24/9/2026: token non
+ * collegato su una scena, attore importato da un compendio di mondo che ha gli stessi id di
+ * daggerheart.adversaries.
+ */
+const ARCHMAGE = "FNNt42hhwvuOc4XO";
+const attoreInScena = (extra = {}) => ({
+  documentName: "Actor", type: "adversary", name: "Archmage", id: "uEGOaK3e0O1lI4eD",
+  uuid: "Scene.LPCc1NtTT8mSAJoS.Token.06NCIXX27oY2FK6e.Actor.uEGOaK3e0O1lI4eD",
+  system: { tier: 3 },
+  _stats: { compendiumSource: `Compendium.world.avversari-con-token.Actor.${ARCHMAGE}` },
+  ...extra
+});
+const fireball = attore => ({
+  _id: "dyGb0CQpxamvikPl", name: "Mark Stress", type: "attack", range: "far", target: { type: "any" },
+  item: { documentName: "Item", type: "feature", name: "Fireball", id: "r6du8H8vxnW0WDfb", parent: attore }
+});
+
+test("la feature di un avversario in scena si identifica con l'attore d'origine", () => {
+  const d = datiAzione(fireball(attoreInScena()));
+  assert.equal(d.categoria, "avversario");
+  assert.equal(chiave(d), `Actor.${ARCHMAGE}.Item.r6du8H8vxnW0WDfb::dyGb0CQpxamvikPl`);
+  assert.equal(d.nomeCarta, "Archmage · Fireball");
+  assert.equal(d.dominio, "avversari T3");
+});
+
+test("l'attacco base ha per item l'attore stesso", () => {
+  const attore = attoreInScena();
+  const d = datiAzione({ _id: "qHEFFbkvLvbm9VmI", name: "Archmage's Greatstaff", type: "attack", range: "far", item: attore });
+  assert.equal(chiave(d), `Actor.${ARCHMAGE}::qHEFFbkvLvbm9VmI`);
+  assert.equal(d.tipoItem, "attack");
+});
+
+test("la chiave non dipende dal compendio da cui e' stato importato l'avversario", () => {
+  const dalSystem = attoreInScena({ _stats: { compendiumSource: `Compendium.daggerheart.adversaries.Actor.${ARCHMAGE}` } });
+  assert.equal(chiave(datiAzione(fireball(dalSystem))), chiave(datiAzione(fireball(attoreInScena()))));
+});
+
+test("un avversario homebrew senza fonte usa il proprio id", () => {
+  const d = datiAzione(fireball(attoreInScena({ _stats: {} })));
+  assert.equal(chiave(d), "Actor.uEGOaK3e0O1lI4eD.Item.r6du8H8vxnW0WDfb::dyGb0CQpxamvikPl");
+});
+
+test("la feature di un personaggio non e' ne' carta ne' avversario", () => {
+  const pg = { documentName: "Actor", type: "character", name: "Eroe" };
+  const d = datiAzione({ _id: "a", name: "X", item: { documentName: "Item", type: "feature", name: "F", parent: pg } });
+  assert.equal(d.categoria, null);
+});

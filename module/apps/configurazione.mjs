@@ -8,6 +8,24 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 /* Il compendio delle carte di dominio del system. La finestra non ha altra fonte. */
 const COMPENDIO = "daggerheart.domains";
 
+/*
+ * Gli avversari si cercano in tutti i compendi di attori, non in uno solo: c'e' quello del
+ * system e spesso una copia di mondo con i token gia' disegnati, e le chiavi (che usano l'id
+ * dell'attore, non il nome del pack) sono le stesse. righeDaCarte scarta i doppioni.
+ * I compendi di mondo vengono prima, cosi' e' la loro copia a dare il nome alla riga.
+ */
+async function avversariDaiCompendi() {
+  const packs = game.packs
+    .filter(p => p.documentName === "Actor" && p.index.some(e => e.type === "adversary"))
+    .sort((a, b) => (a.metadata.packageType === "world" ? 0 : 1) - (b.metadata.packageType === "world" ? 0 : 1));
+  const avversari = [];
+  for (const pack of packs) {
+    const documenti = await pack.getDocuments({ type: "adversary" });
+    avversari.push(...documenti.map(d => d.toObject()));
+  }
+  return avversari;
+}
+
 export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: `${MODULE_ID}-configurazione`,
@@ -83,7 +101,7 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     const pack = game.packs.get(COMPENDIO);
     if (!pack) {
       ui.notifications.error(game.i18n.format("DHVFX.finestra.compendioAssente", { pack: COMPENDIO }));
-      return (this.#carte = []);
+      return (this.#carte = [...await avversariDaiCompendi()]);
     }
     /*
      * `uuid` va tenuto a mano perche' toObject() lo butta via, e senza di lui questo cammino
@@ -93,8 +111,10 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
      * copia e quindi la fonte vera, non ritrovava mai: mappa piena e nessun effetto.
      */
     const documenti = await pack.getDocuments();
-    return (this.#carte = documenti.map(d => ({ ...d.toObject(), uuid: d.uuid })));
+    const carte = documenti.map(d => ({ ...d.toObject(), uuid: d.uuid }));
+    return (this.#carte = [...carte, ...await avversariDaiCompendi()]);
   }
+
 
   /*
    * Gli ascoltatori si agganciano una volta sola, non a ogni render: il mixin non sostituisce

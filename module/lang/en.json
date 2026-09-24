@@ -1,9 +1,9 @@
 {
   "DHVFX.settings.attivo.name": "Visual effects enabled",
-  "DHVFX.settings.attivo.hint": "When a character uses a domain card action, play the assigned effect.",
-  "DHVFX.finestra.titolo": "Domain card effects",
-  "DHVFX.finestra.tuttiIDomini": "all domains",
-  "DHVFX.finestra.cerca": "search for a card",
+  "DHVFX.settings.attivo.hint": "When a character uses a domain card action, or an adversary uses an attack or a feature, play the assigned effect.",
+  "DHVFX.finestra.titolo": "Card and adversary effects",
+  "DHVFX.finestra.tuttiIDomini": "everything",
+  "DHVFX.finestra.cerca": "search for a card or an adversary",
   "DHVFX.finestra.precompila": "Autofill",
   "DHVFX.finestra.esporta": "Export",
   "DHVFX.finestra.importa": "Import",
@@ -16,7 +16,7 @@
   "DHVFX.finestra.importoNonValido": "The pasted text is not a valid map: malformed JSON, or no usable row. The map was not touched.",
   "DHVFX.finestra.azioneFallita": "The action did not complete. Please try again.",
   "DHVFX.finestra.compendioAssente": "Compendium {pack} not found: the window stays empty. Check that the Daggerheart system is active in this world.",
-  "DHVFX.settings.menu.name": "Domain card effects",
+  "DHVFX.settings.menu.name": "Card and adversary effects",
   "DHVFX.settings.menu.label": "Open the window",
-  "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card action."
+  "DHVFX.settings.menu.hint": "Assign a visual effect to every domain card and adversary action."
 }

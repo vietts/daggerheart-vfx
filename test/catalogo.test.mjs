@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { azioniDiCarta, righeDaCarte, precompila, righeCambiate, rigaValida, righeImportabili } from "../module/lib/catalogo.mjs";
+import { azioniDiCarta, azioniDiAvversario, righeDaCarte, precompila, righeCambiate, rigaValida, righeImportabili } from "../module/lib/catalogo.mjs";
 import { ASSEGNAZIONI } from "../module/lib/assegnazioni.mjs";
 
 const F = "Compendium.daggerheart.domains.Item.AAA";
@@ -171,4 +171,43 @@ test("righeImportabili tiene le buone e dice quante ne ha scartate", () => {
 test("una mappa tutta malformata non lascia niente: chi chiama non deve scrivere", () => {
   assert.deepEqual(righeImportabili({ a: null, b: 1 }), { mappa: {}, scartate: 2 });
   assert.deepEqual(righeImportabili({}), { mappa: {}, scartate: 0 });
+});
+
+/* L'Archmage come lo vede la finestra: un oggetto sorgente (toObject) dentro un compendio. */
+const archmage = {
+  _id: "FNNt42hhwvuOc4XO", name: "Archmage", type: "adversary", system: {
+    tier: 3,
+    attack: { _id: "qHEFFbkvLvbm9VmI", name: "Archmage's Greatstaff", type: "attack", range: "far", target: { type: "any" } }
+  },
+  _stats: { compendiumSource: null },
+  items: [
+    { _id: "ptauqaFcMVrpE1wi", name: "Relentless (3)", type: "feature", system: { actions: {} } },
+    { _id: "r6du8H8vxnW0WDfb", name: "Fireball", type: "feature", system: { actions: {
+      dyGb0CQpxamvikPl: { _id: "dyGb0CQpxamvikPl", name: "Mark Stress", type: "attack", range: "far", target: { type: "any" } }
+    } } }
+  ]
+};
+
+test("un avversario da' l'attacco base e le azioni delle feature, non le feature senza azioni", () => {
+  const righe = righeDaCarte([archmage]);
+  assert.deepEqual(righe.map(r => r.chiave), [
+    "Actor.FNNt42hhwvuOc4XO::qHEFFbkvLvbm9VmI",
+    "Actor.FNNt42hhwvuOc4XO.Item.r6du8H8vxnW0WDfb::dyGb0CQpxamvikPl"
+  ]);
+  assert.ok(righe.every(r => r.categoria === "avversario"));
+});
+
+test("lo stesso avversario da due compendi da' una riga sola", () => {
+  const copia = { ...archmage, _stats: { compendiumSource: "Compendium.daggerheart.adversaries.Actor.FNNt42hhwvuOc4XO" } };
+  assert.equal(righeDaCarte([archmage, copia]).length, 2);
+});
+
+test("le feature dell'attore vivo arrivano anche da una Collection", () => {
+  const vivo = { ...archmage, items: new Map(archmage.items.map(i => [i._id, i])).values() };
+  assert.equal(azioniDiAvversario(vivo).length, 2);
+});
+
+test("un avversario fuori tabella resta vuoto: non ha regola di dominio", () => {
+  const homebrew = { ...archmage, _id: "homebrew00000000" };
+  assert.equal(Object.keys(precompila(righeDaCarte([homebrew]), {})).length, 0);
 });
