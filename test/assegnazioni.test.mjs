@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ASSEGNAZIONI } from "../module/lib/assegnazioni.mjs";
+import { ASSEGNAZIONI_AVVERSARI } from "../module/lib/assegnazioni-avversari.mjs";
 import { REGOLE } from "../module/lib/regole.mjs";
 import { FORME } from "../module/lib/costanti.mjs";
 
@@ -50,4 +51,24 @@ test("una proiettile non porta la lunghezza nella chiave", () => {
 test("la tabella distingue davvero: molti piu' effetti delle 37 regole", () => {
   const distinti = new Set(Object.values(ASSEGNAZIONI).map(a => a.file));
   assert.ok(distinti.size > 100, `solo ${distinti.size} effetti distinti`);
+});
+
+/* Gli avversari: stessa verifica, e la forma delle chiavi e' quella di chiavi.mjs. */
+test("la tabella avversari copre le 1031 azioni del compendio", () => {
+  assert.equal(Object.keys(ASSEGNAZIONI_AVVERSARI).length, 1031);
+  for (const k of Object.keys(ASSEGNAZIONI_AVVERSARI)) {
+    assert.match(k, /^Actor\.\w{16}(\.Item\.\w{16})?::\w{16}$/, k);
+  }
+});
+
+test("ogni effetto degli avversari esiste in JB2A gratuito, con la forma giusta", () => {
+  for (const [k, { file, forma }] of Object.entries(ASSEGNAZIONI_AVVERSARI)) {
+    assert.ok(esiste(file), `${k}: ${file}`);
+    assert.ok(FORME.includes(forma), `${k}: forma ${forma}`);
+    assert.equal(forma === "proiettile", PROIETTILI.has(file), `${k}: ${file} come ${forma}`);
+  }
+});
+
+test("le due tabelle non si pestano le chiavi", () => {
+  for (const k of Object.keys(ASSEGNAZIONI_AVVERSARI)) assert.ok(!(k in ASSEGNAZIONI), k);
 });

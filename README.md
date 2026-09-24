@@ -1,9 +1,9 @@
 # Daggerheart VFX
 
-Effetti visivi per le carte di dominio di Daggerheart su Foundry VTT.
+Effetti visivi per le carte di dominio e gli avversari di Daggerheart su Foundry VTT.
 
-Quando un personaggio usa un'azione di una carta di dominio, il modulo gioca l'effetto che
-gli hai assegnato: un proiettile teso dal lanciatore al bersaglio, un'esplosione appoggiata
+Quando un personaggio usa un'azione di una carta di dominio, o un avversario usa il suo
+attacco o una sua feature, il modulo gioca l'effetto che gli hai assegnato: un proiettile teso dal lanciatore al bersaglio, un'esplosione appoggiata
 sul bersaglio, o un effetto su chi lancia.
 
 ## Cosa serve
@@ -31,6 +31,14 @@ Le assegnazioni fatte a mano vincono sempre — *Precompila* non sovrascrive una
 cambiato tu, quindi lo puoi ripremere senza paura. Aggiorna invece le righe rimaste
 all'effetto generico del dominio: se avevi precompilato con una versione vecchia del modulo,
 ripremilo e ottieni le scelte per carta senza perdere le tue correzioni.
+
+## Gli avversari
+
+La finestra elenca, dopo le carte, gli avversari di tutti i compendi di attori: quello del
+system e le copie di mondo, per esempio un compendio con i token già disegnati. Lo stesso
+avversario in due compendi è una riga sola, e la sua assegnazione vale per i token presi da
+uno qualunque dei due: la riga si riconosce dall'id dell'attore d'origine, non dal compendio.
+Il filtro in alto li raggruppa per tier (*avversari T1*… *T4*).
 
 ## Cambiare un effetto
 
@@ -109,9 +117,11 @@ docker start foundry
 
 ## Limiti dichiarati
 
-- Copre le **carte di dominio**, non le armi e non gli attacchi degli avversari.
-- Le carte aggiunte dal system dopo l'ultima precompilazione nascono senza effetto: va
-  ripremuto *Precompila*.
+- Copre le **carte di dominio** e gli **avversari** (attacco base e feature con un'azione),
+  non le armi dei personaggi, non gli ambienti.
+- Le carte e gli avversari aggiunti dopo l'ultima precompilazione nascono senza effetto: va
+  ripremuto *Precompila*. Un avversario homebrew non ha una scelta pronta: la sua riga
+  resta vuota finché non gliela dai tu.
 - Hope e Fear non cambiano l'effetto: si gioca sui bersagli non mancati.
 
 `docs/verifiche-in-foundry.md` elenca le prove da fare a video, in ordine di importanza.

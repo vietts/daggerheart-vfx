@@ -4,7 +4,7 @@ import { contesto } from "./lib/contesto.mjs";
 import { decidi } from "./lib/decisione.mjs";
 import { costruisci } from "./lib/scena.mjs";
 import { fileDaPrecaricare } from "./lib/preload.mjs";
-import { azioniDiCarta } from "./lib/catalogo.mjs";
+import { azioniDiCarta, azioniDiAvversario } from "./lib/catalogo.mjs";
 import { ConfigurazioneVFX } from "./apps/configurazione.mjs";
 
 const mappa = () => game.settings.get(MODULE_ID, SETTING_MAPPA) ?? {};
@@ -63,7 +63,7 @@ Hooks.on("daggerheart.postUseAction", async (action, config) => {
     if (!attivo()) return;
 
     const dati = datiAzione(action);
-    if (dati.tipoItem !== "domainCard") return;
+    if (!dati.categoria) return;
 
     const src = action.actor?.getActiveTokens?.()?.[0];
     const ctx = contesto(config, src?.id ?? null);
@@ -81,8 +81,9 @@ Hooks.on("daggerheart.postUseAction", async (action, config) => {
 });
 
 /*
- * Le azioni delle carte di dominio possedute da chi ha un token in questa scena. Si guarda
- * l'attore del token, non il token: le carte stanno sull'attore.
+ * Le azioni delle carte di dominio possedute da chi ha un token in questa scena, e quelle
+ * degli avversari in scena. Si guarda l'attore del token, non il token: le carte stanno
+ * sull'attore, e per un token non collegato l'attore sintetico porta feature e attacco.
  *
  * L'iterazione delle azioni passa da `azioniDiCarta`, la stessa che usa la finestra: qui i
  * documenti sono vivi e li' sono oggetti sorgente, e due cicli scritti a parte avevano gia'
@@ -90,9 +91,9 @@ Hooks.on("daggerheart.postUseAction", async (action, config) => {
  */
 function azioniInScena() {
   const attori = new Set(canvas.tokens.placeables.map(t => t.actor).filter(Boolean));
-  return [...attori].map(a => a.items
-    .filter(i => i.type === "domainCard")
-    .flatMap(i => azioniDiCarta(i))
+  return [...attori].map(a => a.type === "adversary"
+    ? azioniDiAvversario(a)
+    : a.items.filter(i => i.type === "domainCard").flatMap(i => azioniDiCarta(i))
   );
 }
 

@@ -6,9 +6,12 @@
  */
 
 import { FORME } from "./costanti.mjs";
-import { chiave, datiAzione } from "./chiavi.mjs";
+import { chiave, datiAzione, datiAzioneAvversario } from "./chiavi.mjs";
 import { fileDaRegola, formaDaAzione } from "./regole.mjs";
 import { ASSEGNAZIONI } from "./assegnazioni.mjs";
+import { ASSEGNAZIONI_AVVERSARI } from "./assegnazioni-avversari.mjs";
+
+const TABELLA = { ...ASSEGNAZIONI, ...ASSEGNAZIONI_AVVERSARI };
 
 /*
  * L'unico modo di iterare le azioni di una carta, per i due cammini che ne hanno bisogno: la
@@ -23,30 +26,59 @@ import { ASSEGNAZIONI } from "./assegnazioni.mjs";
  * di prototipo e non proprieta' proprie, `{ ...az }` li perderebbe e ne uscirebbero chiavi e
  * forme sbagliate.
  */
-export function azioniDiCarta(carta) {
-  const azioni = carta?.system?.actions;
+function elencoAzioni(azioni) {
   if (!azioni || typeof azioni !== "object") return [];
-
   const elenco = Array.isArray(azioni) ? azioni
     : typeof azioni.values === "function" ? [...azioni.values()]
     : Object.values(azioni);
-
-  return elenco
-    .filter(az => az && typeof az === "object")
-    .map(az => datiAzione({
-      _id: az._id, name: az.name, type: az.type, range: az.range, target: az.target, item: carta
-    }));
+  return elenco.filter(az => az && typeof az === "object");
 }
 
+export function azioniDiCarta(carta) {
+  return elencoAzioni(carta?.system?.actions).map(az => datiAzione({
+    _id: az._id, name: az.name, type: az.type, range: az.range, target: az.target, item: carta
+  }));
+}
+
+/*
+ * Un avversario ha due fonti di azioni: l'attacco base, che sta in system.attack e non in un
+ * item, e le azioni delle sue feature. Stesse tre forme da reggere di azioniDiCarta, piu'
+ * `items`, che e' un array sull'oggetto sorgente e una Collection sull'attore vivo.
+ */
+export function azioniDiAvversario(attore) {
+  const dati = [];
+  const attacco = attore?.system?.attack;
+  if (attacco && typeof attacco === "object") dati.push(datiAzioneAvversario(attore, null, attacco));
+  for (const feature of attore?.items ?? []) {
+    for (const az of elencoAzioni(feature?.system?.actions)) dati.push(datiAzioneAvversario(attore, feature, az));
+  }
+  return dati;
+}
+
+/* Le azioni che il modulo sa animare, da qualunque documento: carta di dominio o avversario. */
+export function azioniDi(doc) {
+  if (doc?.type === "domainCard") return azioniDiCarta(doc);
+  if (doc?.type === "adversary") return azioniDiAvversario(doc);
+  return [];
+}
+
+/*
+ * Lo stesso avversario puo' arrivare da due compendi (quello del system e una copia di mondo
+ * con i token): stessi id, quindi stesse chiavi. Si tiene la prima riga e basta, altrimenti
+ * la finestra ne mostrerebbe due che scrivono nello stesso posto.
+ */
 export function righeDaCarte(carte, mappa = {}) {
   const righe = [];
+  const viste = new Set();
   for (const carta of carte) {
-    for (const dati of azioniDiCarta(carta)) {
+    for (const dati of azioniDi(carta)) {
       const k = chiave(dati);
-      if (!k) continue;
+      if (!k || viste.has(k)) continue;
+      viste.add(k);
       const riga = mappa[k] ?? {};
       righe.push({
         chiave: k,
+        categoria: dati.categoria,
         dominio: dati.dominio,
         nomeCarta: dati.nomeCarta,
         nomeAzione: dati.nomeAzione,
@@ -66,8 +98,9 @@ export function righeDaCarte(carte, mappa = {}) {
  * poi non conta piu' niente. E non sovrascrive: una scelta fatta a mano vince sempre sulla
  * regola, altrimenti il bottone diventerebbe un modo per perdere il proprio lavoro.
  *
- * La proposta viene prima dalla tabella per azione (una scelta per carta, letta dal testo) e
- * solo se l'azione non c'e' — homebrew, carte uscite dopo — dalla regola del dominio.
+ * La proposta viene prima dalla tabella per azione (una scelta per carta o per avversario,
+ * letta dal testo) e solo se l'azione non c'e' — homebrew, carte uscite dopo — dalla regola
+ * del dominio. Gli avversari una regola di dominio non ce l'hanno: fuori tabella restano vuoti.
  *
  * Unica eccezione al "non sovrascrive": una riga il cui file e' ancora esattamente quello
  * della regola di dominio non l'ha scelta nessuno, e' la vecchia precompilazione. Quella
@@ -81,7 +114,7 @@ export function precompila(righe, mappa) {
   for (const r of righe) {
     const attuale = nuova[r.chiave]?.file;
     const regola = fileDaRegola(r.dominio, r.tipo);
-    const specifica = ASSEGNAZIONI[r.chiave];
+    const specifica = TABELLA[r.chiave];
 
     if (attuale && !(specifica && attuale === regola)) continue;
     if (specifica) { nuova[r.chiave] = { ...specifica }; continue; }
