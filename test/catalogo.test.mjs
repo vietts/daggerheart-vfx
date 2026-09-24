@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { azioniDiCarta, righeDaCarte, precompila, rigaValida, righeImportabili } from "../module/lib/catalogo.mjs";
+import { azioniDiCarta, righeDaCarte, precompila, righeCambiate, rigaValida, righeImportabili } from "../module/lib/catalogo.mjs";
+import { ASSEGNAZIONI } from "../module/lib/assegnazioni.mjs";
 
 const F = "Compendium.daggerheart.domains.Item.AAA";
 const carta = (nome, dominio, azioni) => ({
@@ -51,6 +52,34 @@ test("precompila non tocca cio' che hai gia' scelto", () => {
   const mappa = { [`${F}::a1`]: { file: "jb2a.mio", forma: "lanciatore" } };
   const nuova = precompila(righeDaCarte(carte, mappa), mappa);
   assert.deepEqual(nuova[`${F}::a1`], { file: "jb2a.mio", forma: "lanciatore" });
+});
+
+/* Una carta vera del compendio (Book of Illiat, Arcane Barrage): la tabella la conosce. */
+const VERA = "Compendium.daggerheart.domains.Item.df4iRqQzRntrF6Qw";
+const ID_VERO = "tOHoeUFjdPw2TGrw";
+const cartaVera = [{ ...carta("Book of Illiat", "codex", {
+  [ID_VERO]: { _id: ID_VERO, name: "Arcane Barrage", type: "damage", range: "close", target: { type: "any" } }
+}), _stats: { compendiumSource: VERA } }];
+const K = `${VERA}::${ID_VERO}`;
+
+test("precompila preferisce la scelta per azione alla regola del dominio", () => {
+  const nuova = precompila(righeDaCarte(cartaVera, {}), {});
+  assert.deepEqual(nuova[K], ASSEGNAZIONI[K]);
+  assert.notEqual(nuova[K].file, "jb2a.explosion.03.blueyellow");   // codex + damage
+});
+
+test("precompila aggiorna una riga rimasta alla vecchia regola", () => {
+  const mappa = { [K]: { file: "jb2a.explosion.03.blueyellow", forma: "proiettile" } };
+  const nuova = precompila(righeDaCarte(cartaVera, mappa), mappa);
+  assert.deepEqual(nuova[K], ASSEGNAZIONI[K]);
+  assert.equal(righeCambiate(mappa, nuova), 1);
+});
+
+test("precompila non tocca una scelta a mano anche se la tabella la conosce", () => {
+  const mappa = { [K]: { file: "jb2a.mio", forma: "lanciatore" } };
+  const nuova = precompila(righeDaCarte(cartaVera, mappa), mappa);
+  assert.deepEqual(nuova[K], { file: "jb2a.mio", forma: "lanciatore" });
+  assert.equal(righeCambiate(mappa, nuova), 0);
 });
 
 test("una coppia dominio+tipo senza regola resta vuota", () => {

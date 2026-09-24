@@ -7,7 +7,7 @@
   "DHVFX.finestra.precompila": "Autofill",
   "DHVFX.finestra.esporta": "Export",
   "DHVFX.finestra.importa": "Import",
-  "DHVFX.finestra.precompilate": "{n} rows autofilled from the rules.",
+  "DHVFX.finestra.precompilate": "{n} rows autofilled.",
   "DHVFX.finestra.senzaFile": "This row does not have an effect yet.",
   "DHVFX.finestra.senzaToken": "Select the token that is casting.",
   "DHVFX.finestra.senzaBersaglio": "This shape needs at least one target (T key).",

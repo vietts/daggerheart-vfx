@@ -19,13 +19,18 @@ sul bersaglio, o un effetto su chi lancia.
    → scheda **Impostazioni dei moduli** → sezione *Daggerheart VFX* → **Apri la finestra**.
    È un pulsante dentro quella scheda, non una voce di menù: è la parte che si salta con
    l'occhio.
-3. Premi **Precompila**. Assegna un effetto a tutte le 284 azioni del compendio usando 37
-   regole per dominio e tipo di azione.
+3. Premi **Precompila**. Assegna un effetto a tutte le 284 azioni del compendio, scelto carta
+   per carta dal suo testo: il muro di fuoco brucia, il teletrasporto sparisce, la cura cura.
 4. Correggi quelle che non ti convincono, col metodo qui sotto.
 
-Le regole indovinano il *tono* di un dominio, non la singola carta: aspettati di dover
-ritoccare una manciata di righe. Le assegnazioni fatte a mano vincono sempre — *Precompila*
-non sovrascrive mai una riga che ha già un effetto, quindi lo puoi ripremere senza paura.
+Le scelte sono fatte leggendo le carte, non guardando gli effetti a video: aspettati di dover
+ritoccare qualche riga. Le carte che la tabella non conosce (homebrew, uscite dopo) ricevono
+l'effetto generico del loro dominio.
+
+Le assegnazioni fatte a mano vincono sempre — *Precompila* non sovrascrive una riga che hai
+cambiato tu, quindi lo puoi ripremere senza paura. Aggiorna invece le righe rimaste
+all'effetto generico del dominio: se avevi precompilato con una versione vecchia del modulo,
+ripremilo e ottieni le scelte per carta senza perdere le tue correzioni.
 
 ## Cambiare un effetto
 
