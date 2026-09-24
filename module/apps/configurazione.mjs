@@ -1,5 +1,5 @@
 import { MODULE_ID, SETTING_MAPPA, FORME } from "../lib/costanti.mjs";
-import { righeDaCarte, precompila, righeImportabili } from "../lib/catalogo.mjs";
+import { righeDaCarte, precompila, righeCambiate, righeImportabili } from "../lib/catalogo.mjs";
 import { risolviForma } from "../lib/decisione.mjs";
 import { costruisci } from "../lib/scena.mjs";
 
@@ -182,7 +182,7 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     const aggiunte = await this.#inCoda(async () => {
       const mappa = this.#mappa();
       const nuova = precompila(righeDaCarte(carte, mappa), mappa);
-      const n = Object.keys(nuova).length - Object.keys(mappa).length;
+      const n = righeCambiate(mappa, nuova);
       await game.settings.set(MODULE_ID, SETTING_MAPPA, nuova);
       return n;
     });

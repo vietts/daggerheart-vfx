@@ -8,6 +8,7 @@
 import { FORME } from "./costanti.mjs";
 import { chiave, datiAzione } from "./chiavi.mjs";
 import { fileDaRegola, formaDaAzione } from "./regole.mjs";
+import { ASSEGNAZIONI } from "./assegnazioni.mjs";
 
 /*
  * L'unico modo di iterare le azioni di una carta, per i due cammini che ne hanno bisogno: la
@@ -64,16 +65,35 @@ export function righeDaCarte(carte, mappa = {}) {
  * Le regole sono una proposta, non un motore: precompila scrive dentro la mappa esplicita e
  * poi non conta piu' niente. E non sovrascrive: una scelta fatta a mano vince sempre sulla
  * regola, altrimenti il bottone diventerebbe un modo per perdere il proprio lavoro.
+ *
+ * La proposta viene prima dalla tabella per azione (una scelta per carta, letta dal testo) e
+ * solo se l'azione non c'e' — homebrew, carte uscite dopo — dalla regola del dominio.
+ *
+ * Unica eccezione al "non sovrascrive": una riga il cui file e' ancora esattamente quello
+ * della regola di dominio non l'ha scelta nessuno, e' la vecchia precompilazione. Quella
+ * si aggiorna alla scelta per azione, cosi' chi aveva gia' premuto Precompila non deve
+ * svuotare la mappa per averla. Il prezzo: chi aveva scelto a mano proprio l'effetto della
+ * regola se lo vede cambiare — lo stesso effetto per tutta la famiglia e' esattamente la
+ * cosa che la tabella esiste per togliere, quindi e' un caso raro.
  */
 export function precompila(righe, mappa) {
   const nuova = { ...mappa };
   for (const r of righe) {
-    if (nuova[r.chiave]?.file) continue;
-    const file = fileDaRegola(r.dominio, r.tipo);
-    if (!file) continue;
-    nuova[r.chiave] = { file, forma: formaDaAzione(r) };
+    const attuale = nuova[r.chiave]?.file;
+    const regola = fileDaRegola(r.dominio, r.tipo);
+    const specifica = ASSEGNAZIONI[r.chiave];
+
+    if (attuale && !(specifica && attuale === regola)) continue;
+    if (specifica) { nuova[r.chiave] = { ...specifica }; continue; }
+    if (!regola) continue;
+    nuova[r.chiave] = { file: regola, forma: formaDaAzione(r) };
   }
   return nuova;
+}
+
+/* Quante righe precompila ha scritto: aggiunte e aggiornate, non solo le chiavi nuove. */
+export function righeCambiate(prima, dopo) {
+  return Object.keys(dopo).filter(k => prima[k]?.file !== dopo[k]?.file || prima[k]?.forma !== dopo[k]?.forma).length;
 }
 
 /*

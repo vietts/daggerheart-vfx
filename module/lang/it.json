@@ -7,7 +7,7 @@
   "DHVFX.finestra.precompila": "Precompila",
   "DHVFX.finestra.esporta": "Esporta",
   "DHVFX.finestra.importa": "Importa",
-  "DHVFX.finestra.precompilate": "{n} righe precompilate dalle regole.",
+  "DHVFX.finestra.precompilate": "{n} righe precompilate.",
   "DHVFX.finestra.senzaFile": "Questa riga non ha ancora un effetto.",
   "DHVFX.finestra.senzaToken": "Seleziona il token che lancia.",
   "DHVFX.finestra.senzaBersaglio": "Questa forma ha bisogno di almeno un bersaglio (tasto T).",
