@@ -49,6 +49,13 @@
         "id": "JB2A_DnD5e",
         "type": "module"
       }
+    ],
+    "recommends": [
+      {
+        "id": "monks-active-tiles",
+        "type": "module",
+        "reason": "Aggiunge l'azione Effetto JB2A alle tile di Monk's Active Tile Triggers."
+      }
     ]
   },
   "manifest": "https://github.com/vietts/daggerheart-vfx/releases/latest/download/module.json",
