@@ -36,13 +36,44 @@ function nomeDi(chi, entita) {
   return game.MonksActiveTiles.entityName(entita || "previous", "tokens");
 }
 
+/*
+ * La chiave non la ricorda nessuno: il campo "Effetto" suggerisce mentre scrivi. Monk's non
+ * ci lascia attributi sull'input (li passa escapati), quindi il suggeritore si attacca quando
+ * il campo prende il fuoco, e solo se l'azione scelta e' la nostra. Le chiavi sono quelle
+ * "semplici" di Sequencer: i proiettili arrivano gia' senza la lunghezza.
+ */
+const ELENCO = `${MODULE_ID}-effetti`;
+
+function elencoEffetti() {
+  if (document.getElementById(ELENCO)) return;
+  const lista = document.createElement("datalist");
+  lista.id = ELENCO;
+  for (const k of Sequencer.Database.publicFlattenedSimpleEntries) {
+    const voce = document.createElement("option");
+    voce.value = k;
+    lista.append(voce);
+  }
+  document.body.append(lista);
+}
+
+document.addEventListener("focusin", evento => {
+  const campo = evento.target;
+  if (!campo.matches?.('input[name="data.file"]')) return;
+  const azione = campo.closest(".application, .app")?.querySelector('select[name="action"]')?.value;
+  if (azione !== `${MODULE_ID}.effetto`) return;
+  elencoEffetti();
+  campo.setAttribute("list", ELENCO);
+});
+
 Hooks.on("setupTileActions", app => {
   app.registerTileGroup(MODULE_ID, "Daggerheart VFX");
   app.registerTileAction(MODULE_ID, "effetto", {
     name: L("effetto"),
     requiresGM: true,
     ctrls: [
-      { id: "file", name: L("file"), type: "text", required: true, get help() { return game.i18n.localize(L("fileAiuto")); } },
+      { id: "file", name: L("file"), type: "text", required: true,
+        get placeholder() { return game.i18n.localize(L("fileSegnaposto")); },
+        get help() { return game.i18n.localize(L("fileAiuto")); } },
       { id: "chi", name: L("chi"), type: "list", list: "chi", defvalue: "entita" },
       {
         id: "entity", name: L("quali"), type: "select", subtype: "entity",

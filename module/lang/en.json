@@ -32,5 +32,6 @@
   "DHVFX.monks.verso": "Towards",
   "DHVFX.monks.tinta": "Tint",
   "DHVFX.monks.tintaAiuto": "Optional, a colour like #1a1a1a.",
-  "DHVFX.monks.scala": "Scale"
+  "DHVFX.monks.scala": "Scale",
+  "DHVFX.monks.fileSegnaposto": "type to search: smoke, fire, heal…"
 }
