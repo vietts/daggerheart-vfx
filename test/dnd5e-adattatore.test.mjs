@@ -57,7 +57,7 @@ test("daHook: i bersagli dell'utente contano tutti come colpiti, e l'area viene 
   assert.equal(ev.attore, attore);
   assert.deepEqual(ev.bersagli, [{ id: "t1", colpito: true }, { id: "t2", colpito: true }]);
   assert.equal(ev.haTiro, false);
-  assert.deepEqual(ev.area, { diametro: 40, punto: { x: 300, y: 400 } });
+  assert.deepEqual(ev.area, { diametro: 40, unita: "ft", punto: { x: 300, y: 400 }, centro: "bersagli" });
 });
 
 test("daHook ignora cio' che non si anima", () => {
@@ -72,8 +72,35 @@ test("puntoArea: template, region con una forma, oppure niente", () => {
   assert.equal(puntoArea(undefined), null);
 });
 
+test("puntoArea: il centro del placeable, se c'e', vince su tutto il resto", () => {
+  assert.deepEqual(
+    puntoArea({ templates: [{ document: { x: 1, y: 1 }, object: { center: { x: 15, y: 25 } } }] }),
+    { x: 15, y: 25 });
+  assert.deepEqual(
+    puntoArea({ regions: [{ x: 1, y: 1, object: { center: { x: 30, y: 40 } } }] }),
+    { x: 30, y: 40 });
+});
+
+test("puntoArea: una forma rettangolare si centra con la meta' di larghezza e altezza", () => {
+  assert.deepEqual(
+    puntoArea({ regions: [{ shapes: [{ type: "rectangle", x: 0, y: 0, width: 100, height: 50 }] }] }),
+    { x: 50, y: 25 });
+  assert.deepEqual(
+    puntoArea({ regions: [{ shapes: [{ x: 10, y: 10, width: 20, height: 40 }] }] }),
+    { x: 20, y: 30 });
+});
+
 test("area: diametro dalla sagoma, null per un cono", () => {
   const cono = { ...FIREBALL, system: { ...FIREBALL.system, target: { template: { type: "cone", size: "15" } } } };
-  assert.deepEqual(a.area(a.azioniDi(FIREBALL)[0], null), { diametro: 40, punto: null });
-  assert.deepEqual(a.area(a.azioniDi(cono)[0], { x: 1, y: 1 }), { diametro: null, punto: { x: 1, y: 1 } });
+  assert.deepEqual(a.area(a.azioniDi(FIREBALL)[0], null), { diametro: 40, unita: "ft", punto: null, centro: "bersagli" });
+  assert.deepEqual(a.area(a.azioniDi(cono)[0], { x: 1, y: 1 }), { diametro: null, unita: "ft", punto: { x: 1, y: 1 }, centro: "bersagli" });
+});
+
+test("area: un'emanazione su se stessi ha centro lanciatore, il resto centro bersagli", () => {
+  const scudo = { name: "Shield Aura", type: "spell",
+    system: { identifier: "shield-aura", level: 1, school: "abj", range: { units: "self" },
+      target: { template: { type: "radius", size: "10" } },
+      activities: { x: { _id: "x", type: "utility" } } } };
+  assert.equal(a.area(a.azioniDi(scudo)[0], null).centro, "lanciatore");
+  assert.equal(a.area(a.azioniDi(FIREBALL)[0], null).centro, "bersagli");
 });

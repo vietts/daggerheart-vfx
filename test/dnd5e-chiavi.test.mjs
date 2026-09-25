@@ -69,7 +69,7 @@ test("i danni, la scuola e la gittata si leggono", () => {
   const d = datiAzione(FIREBALL);
   assert.deepEqual(d.danni, ["fire"]);
   assert.equal(d.scuola, "evo");
-  assert.deepEqual(d.sagoma, { tipo: "sphere", size: 20 });
+  assert.deepEqual(d.sagoma, { tipo: "sphere", size: 20, unita: "ft" });
 });
 
 test("forma dedotta: sfera e cubo sono area, il cono e' proiettile", () => {
@@ -94,7 +94,13 @@ test("forma dedotta: senza sagoma e senza attacco e' auto; su se stessi lanciato
 test("un'activity con override usa la sua sagoma", () => {
   const it = incantesimo("X", "x", {}, { a: { _id: "a", type: "save", damage: { parts: [{ types: ["cold"] }] },
     target: { override: true, template: { type: "cylinder", size: "10" } } } });
-  assert.deepEqual(datiAzione(it).sagoma, { tipo: "cylinder", size: 10 });
+  assert.deepEqual(datiAzione(it).sagoma, { tipo: "cylinder", size: 10, unita: "ft" });
+});
+
+test("la sagoma porta l'unita' di misura, ft di default", () => {
+  const it = incantesimo("Y", "y", {}, { a: { _id: "a", type: "save", damage: { parts: [{ types: ["cold"] }] },
+    target: { override: true, template: { type: "sphere", size: "6", units: "m" } } } });
+  assert.deepEqual(datiAzione(it).sagoma, { tipo: "sphere", size: 6, unita: "m" });
 });
 
 test("i gruppi della finestra", () => {

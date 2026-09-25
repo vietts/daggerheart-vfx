@@ -206,8 +206,10 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     if ((forma === "proiettile" || forma === "bersaglio") && !bersagli.length)
       return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaBersaglio"));
 
-    await costruisci({ file, forma, origine, bersagli, area: { diametro: null, punto: null } }, Sequence,
-      { distanzaCasella: canvas.scene?.grid?.distance ?? null }).play();
+    await costruisci({ file, forma, origine, bersagli, area: { diametro: null, unita: null, punto: null } }, Sequence, {
+      distanzaCasella: canvas.scene?.grid?.distance ?? null,
+      unitaCasella: canvas.scene?.grid?.units ?? null
+    }).play();
   }
 
   async #esporta() {

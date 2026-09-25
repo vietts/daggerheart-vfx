@@ -69,7 +69,7 @@ test("una riga area porta l'area del contesto nel descrittore", () => {
 
 test("un'area senza bersagli si gioca lo stesso, e senza area nel contesto ha un'area vuota", () => {
   const mappa = { [K]: { file: "f", forma: "area" } };
-  assert.deepEqual(decidi(K, mappa, ctx({ bersagli: [] })).area, { diametro: null, punto: null });
+  assert.deepEqual(decidi(K, mappa, ctx({ bersagli: [] })).area, { diametro: null, unita: null, punto: null });
 });
 
 test("solo la forma area aggiunge il campo area", () => {

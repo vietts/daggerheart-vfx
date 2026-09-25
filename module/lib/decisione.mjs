@@ -36,6 +36,6 @@ export function decidi(k, mappa, ctx) {
   /* L'area la sa solo il contesto (la sagoma dell'incantesimo, il punto piazzato). Una riga
      messa ad `area` a mano su un sistema che non ne dichiara porta un'area vuota: scena.mjs
      sa ripiegare. */
-  if (forma === "area") descrittore.area = ctx.area ?? { diametro: null, punto: null };
+  if (forma === "area") descrittore.area = ctx.area ?? { diametro: null, unita: null, punto: null };
   return descrittore;
 }

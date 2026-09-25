@@ -11,6 +11,7 @@ export async function suona(descrittore) {
   if (!descrittore || !canvas?.ready) return false;
   const risolto = risolviToken(descrittore, id => canvas.tokens.get(id) ?? null);
   if (!risolto) return false;
-  await costruisci(risolto, Sequence, { distanzaCasella: canvas.scene?.grid?.distance ?? null }).play();
+  await costruisci(risolto, Sequence,
+    { distanzaCasella: canvas.scene?.grid?.distance ?? null, unitaCasella: canvas.scene?.grid?.units ?? null }).play();
   return true;
 }

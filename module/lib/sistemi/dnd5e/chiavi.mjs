@@ -54,12 +54,14 @@ export function gruppo(item) {
 
 const tipiDanno = attivita => (attivita?.damage?.parts ?? []).flatMap(p => Array.from(p?.types ?? []));
 
-/* Un'activity che non fa override eredita la sagoma dall'oggetto. */
+/* Un'activity che non fa override eredita la sagoma dall'oggetto. L'unita' di misura serve a
+   convertire il diametro nelle caselle della scena (scena.mjs): dnd5e la lascia vuota quando
+   e' "ft" (il default del system), quindi si ripiega su "ft" quando manca. */
 function sagomaDi(item, attivita) {
   const t = attivita?.target?.override ? attivita.target.template : item?.system?.target?.template;
   if (!t?.type) return null;
   const size = Number(t.size);
-  return { tipo: t.type, size: Number.isFinite(size) && size > 0 ? size : null };
+  return { tipo: t.type, size: Number.isFinite(size) && size > 0 ? size : null, unita: t.units || "ft" };
 }
 
 /*

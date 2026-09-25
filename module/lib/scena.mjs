@@ -20,12 +20,27 @@ function centroDi(tokens) {
   };
 }
 
-function caselle(area, distanzaCasella) {
-  if (!area?.diametro || !distanzaCasella) return CASELLE_RIPIEGO;
-  return area.diametro / distanzaCasella;
+/*
+ * Il diametro dell'area e la griglia della scena possono parlare unita' diverse (un
+ * incantesimo in piedi su una scena in metri, o viceversa): si converte prima di dividere per
+ * la distanza di una casella. Stessa unita', si passa cosi' com'e'; un abbinamento che non e'
+ * fra i due che il modulo conosce (o dati mancanti) non si inventa un numero: ripiega.
+ */
+function converti(diametro, unitaOrigine, unitaCasella) {
+  if (!Number.isFinite(diametro) || !unitaOrigine || !unitaCasella) return null;
+  if (unitaOrigine === unitaCasella) return diametro;
+  if (unitaOrigine === "ft" && unitaCasella === "m") return diametro * 0.3;
+  if (unitaOrigine === "m" && unitaCasella === "ft") return diametro / 0.3;
+  return null;
 }
 
-export function costruisci({ file, forma, origine, bersagli, area }, Sequence, { distanzaCasella = null } = {}) {
+function caselle(area, distanzaCasella, unitaCasella) {
+  const convertito = converti(area?.diametro, area?.unita, unitaCasella);
+  if (!Number.isFinite(convertito) || !distanzaCasella) return CASELLE_RIPIEGO;
+  return convertito / distanzaCasella;
+}
+
+export function costruisci({ file, forma, origine, bersagli, area }, Sequence, { distanzaCasella = null, unitaCasella = null } = {}) {
   const s = new Sequence();
 
   if (forma === "proiettile") {
@@ -33,8 +48,11 @@ export function costruisci({ file, forma, origine, bersagli, area }, Sequence, {
   } else if (forma === "bersaglio") {
     for (const b of bersagli) s.effect().file(file).atLocation(b).scaleToObject(2);
   } else if (forma === "area") {
-    const dove = area?.punto ?? centroDi(bersagli) ?? origine;
-    s.effect().file(file).atLocation(dove).size(caselle(area, distanzaCasella), { gridUnits: true });
+    /* Un'emanazione (centro "lanciatore") sta su chi lancia anche con dei bersagli in scena:
+       senza un punto piazzato, solo l'anchor lo dice. Tutto il resto va al centroide dei
+       bersagli, e senza bersagli sul lanciatore. */
+    const dove = area?.punto ?? (area?.centro === "lanciatore" ? origine : centroDi(bersagli)) ?? origine;
+    s.effect().file(file).atLocation(dove).size(caselle(area, distanzaCasella, unitaCasella), { gridUnits: true });
   } else {
     s.effect().file(file).atLocation(origine).scaleToObject(1.6);
   }

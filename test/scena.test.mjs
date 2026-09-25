@@ -94,31 +94,57 @@ const tk = (id, x, y) => ({ id, center: { x, y } });
 
 test("area: sul punto piazzato, grande quanto il diametro in caselle", () => {
   const s = costruisci({ file: "jb2a.x", forma: "area", origine: tk("S", 0, 0), bersagli: [tk("T", 50, 50)],
-    area: { diametro: 40, punto: { x: 10, y: 20 } } }, SequenceFinta, { distanzaCasella: 5 });
+    area: { diametro: 40, unita: "ft", punto: { x: 10, y: 20 } } }, SequenceFinta, { distanzaCasella: 5, unitaCasella: "ft" });
   assert.deepEqual(s.chiamate, [["file", "jb2a.x"], ["atLocation", { x: 10, y: 20 }], ["size", 8, { gridUnits: true }]]);
 });
 
 test("area senza punto: al centro dei bersagli", () => {
   const s = costruisci({ file: "jb2a.x", forma: "area", origine: tk("S", 0, 0),
-    bersagli: [tk("A", 0, 0), tk("B", 100, 200)], area: { diametro: 20, punto: null } }, SequenceFinta, { distanzaCasella: 5 });
+    bersagli: [tk("A", 0, 0), tk("B", 100, 200)], area: { diametro: 20, unita: "ft", punto: null } },
+    SequenceFinta, { distanzaCasella: 5, unitaCasella: "ft" });
   assert.deepEqual(s.chiamate[1], ["atLocation", { x: 50, y: 100 }]);
   assert.deepEqual(s.chiamate[2], ["size", 4, { gridUnits: true }]);
 });
 
+test("area senza punto ma con centro lanciatore (emanazione su se stessi): sul lanciatore", () => {
+  const origine = tk("S", 0, 0);
+  const s = costruisci({ file: "jb2a.x", forma: "area", origine, bersagli: [tk("A", 100, 100)],
+    area: { diametro: 20, unita: "ft", punto: null, centro: "lanciatore" } }, SequenceFinta, { distanzaCasella: 5, unitaCasella: "ft" });
+  assert.deepEqual(s.chiamate[1], ["atLocation", origine]);
+});
+
 test("area senza punto ne' bersagli: sul lanciatore; senza diametro: la misura di ripiego", () => {
   const origine = tk("S", 0, 0);
-  const s = costruisci({ file: "jb2a.x", forma: "area", origine, bersagli: [], area: { diametro: null, punto: null } },
-    SequenceFinta, { distanzaCasella: 5 });
+  const s = costruisci({ file: "jb2a.x", forma: "area", origine, bersagli: [], area: { diametro: null, unita: null, punto: null } },
+    SequenceFinta, { distanzaCasella: 5, unitaCasella: "ft" });
   assert.deepEqual(s.chiamate, [["file", "jb2a.x"], ["atLocation", origine], ["size", 3, { gridUnits: true }]]);
 });
 
 test("area senza distanza della griglia: la misura di ripiego", () => {
   const s = costruisci({ file: "jb2a.x", forma: "area", origine: tk("S", 0, 0), bersagli: [],
-    area: { diametro: 40, punto: null } }, SequenceFinta, {});
+    area: { diametro: 40, unita: "ft", punto: null } }, SequenceFinta, {});
+  assert.deepEqual(s.chiamate[2], ["size", 3, { gridUnits: true }]);
+});
+
+test("area: 40 piedi convertiti su una griglia in metri", () => {
+  const s = costruisci({ file: "jb2a.x", forma: "area", origine: tk("S", 0, 0), bersagli: [],
+    area: { diametro: 40, unita: "ft", punto: { x: 0, y: 0 } } }, SequenceFinta, { distanzaCasella: 1.5, unitaCasella: "m" });
+  assert.deepEqual(s.chiamate[2], ["size", 8, { gridUnits: true }]);
+});
+
+test("area: 12 metri convertiti su una griglia in piedi", () => {
+  const s = costruisci({ file: "jb2a.x", forma: "area", origine: tk("S", 0, 0), bersagli: [],
+    area: { diametro: 12, unita: "m", punto: { x: 0, y: 0 } } }, SequenceFinta, { distanzaCasella: 5, unitaCasella: "ft" });
+  assert.deepEqual(s.chiamate[2], ["size", 8, { gridUnits: true }]);
+});
+
+test("area: un abbinamento di unita' sconosciuto ricade sulla misura di ripiego", () => {
+  const s = costruisci({ file: "jb2a.x", forma: "area", origine: tk("S", 0, 0), bersagli: [],
+    area: { diametro: 40, unita: "mi", punto: { x: 0, y: 0 } } }, SequenceFinta, { distanzaCasella: 5, unitaCasella: "ft" });
   assert.deepEqual(s.chiamate[2], ["size", 3, { gridUnits: true }]);
 });
 
 test("risolviToken: un'area si gioca anche senza bersagli", () => {
-  const r = risolviToken({ file: "f", forma: "area", origine: "SRC", bersagli: ["sparito"], area: { diametro: null, punto: null } }, trova);
+  const r = risolviToken({ file: "f", forma: "area", origine: "SRC", bersagli: ["sparito"], area: { diametro: null, unita: null, punto: null } }, trova);
   assert.deepEqual(r.bersagli, []);
 });
