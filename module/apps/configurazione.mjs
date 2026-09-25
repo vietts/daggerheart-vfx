@@ -6,6 +6,11 @@ import { costruisci } from "../lib/scena.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/* Cache dei documenti dei compendi, di modulo e non di istanza: chiudere e riaprire la finestra
+   nella stessa sessione di pagina non deve rileggere tutti i compendi da capo. Il system non
+   cambia a mondo aperto, quindi non serve mai invalidarla. */
+let documentiCache = null;
+
 export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: `${MODULE_ID}-configurazione`,
@@ -29,16 +34,19 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
      le scritture successive: la coda si "ripulisce" prima di mettersi in fila di nuovo. */
   #codaScritture = Promise.resolve();
 
-  #carte = null;
-
   /* Il system non cambia mentre il mondo e' aperto: l'adattatore si prende una volta. La
      finestra si registra solo se c'e' (vedi daggerheart-vfx.mjs), quindi qui non e' null. */
   #adattatore = adattatorePer(game.system.id);
 
-  /* I documenti dei compendi si leggono una volta sola per finestra: un Precompila ne
-     faceva tre letture (contesto iniziale, precompila, render finale). */
+  /* I documenti dei compendi si leggono una volta sola per finestra (un Precompila ne faceva
+     tre letture: contesto iniziale, precompila, render finale) e una volta sola per l'intera
+     sessione di pagina, grazie alla cache di modulo qui sopra. */
   async #documenti() {
-    return (this.#carte ??= await this.#adattatore.leggiDocumenti());
+    if (!documentiCache) {
+      ui.notifications.info(game.i18n.localize("DHVFX.finestra.caricamento"));
+      documentiCache = await this.#adattatore.leggiDocumenti();
+    }
+    return documentiCache;
   }
 
   /*

@@ -12,7 +12,9 @@
 
 import { elencoAzioni } from "../../elenco.mjs";
 
-const TIPI = new Set(["spell", "weapon", "feat", "consumable"]);
+/* Esportato: finestra.mjs lo usa per leggere solo gli item dei tipi che il modulo anima,
+   invece di caricare l'intero compendio (equipaggiamento, tool, background...). */
+export const TIPI = new Set(["spell", "weapon", "feat", "consumable"]);
 /* In ordine di importanza: l'activity "principale" e' la prima di questo elenco che c'e'. */
 const ORDINE = ["attack", "save", "damage", "heal", "cast", "summon", "utility"];
 const ANIMABILI = new Set(ORDINE);

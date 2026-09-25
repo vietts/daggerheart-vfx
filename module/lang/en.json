@@ -2,6 +2,7 @@
   "DHVFX.settings.attivo.name": "Visual effects enabled",
   "DHVFX.settings.attivo.hint": "When an action, spell or attack with an assigned effect is used, play it on the map.",
   "DHVFX.finestra.titolo": "Visual effects",
+  "DHVFX.finestra.caricamento": "Reading compendia…",
   "DHVFX.finestra.tuttiIDomini": "everything",
   "DHVFX.finestra.cerca": "search by name",
   "DHVFX.finestra.precompila": "Autofill",
