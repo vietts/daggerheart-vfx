@@ -40,3 +40,19 @@ export function costruisciLibero({ file, origini, destinazioni = [], tinta = nul
 
   return s;
 }
+
+/*
+ * Il descrittore porta id di token, perche' e' puro; Sequencer vuole i token disegnati.
+ * `trova` e' `id => canvas.tokens.get(id)` nel gioco, una funzione finta nei test.
+ *
+ * Un bersaglio sparito nel frattempo (token cancellato, scena cambiata) resta fuori. Se non
+ * ne resta nessuno e la forma ne ha bisogno, non si gioca niente: `costruisci` ciclerebbe su
+ * un array vuoto producendo una Sequence che non fa nulla.
+ */
+export function risolviToken(descrittore, trova) {
+  const origine = trova(descrittore.origine);
+  if (!origine) return null;
+  const bersagli = descrittore.bersagli.map(trova).filter(Boolean);
+  if (descrittore.forma !== "lanciatore" && !bersagli.length) return null;
+  return { ...descrittore, origine, bersagli };
+}

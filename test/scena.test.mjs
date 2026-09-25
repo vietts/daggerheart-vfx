@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { costruisci, costruisciLibero } from "../module/lib/scena.mjs";
+import { costruisci, costruisciLibero, risolviToken } from "../module/lib/scena.mjs";
 
 /* Una Sequence finta che registra le chiamate invece di disegnare. */
 function SequenceFinta() {
@@ -68,4 +68,23 @@ test("la tinta si aggiunge solo se c'e'", () => {
   assert.deepEqual(s.chiamate.at(-1), ["tint", "#1a1a1a"]);
   const senza = costruisciLibero({ file: "jb2a.x", origini: ["A"] }, SequenceTinta);
   assert.ok(!senza.chiamate.some(c => c[0] === "tint"));
+});
+
+const token = id => ({ id, center: { x: 0, y: 0 } });
+const trova = id => (id === "sparito" ? null : token(id));
+
+test("risolviToken sostituisce gli id con i token", () => {
+  const r = risolviToken({ file: "f", forma: "proiettile", origine: "SRC", bersagli: ["T1"] }, trova);
+  assert.equal(r.origine.id, "SRC");
+  assert.deepEqual(r.bersagli.map(b => b.id), ["T1"]);
+});
+
+test("risolviToken: senza token d'origine non si gioca", () => {
+  assert.equal(risolviToken({ file: "f", forma: "lanciatore", origine: "sparito", bersagli: [] }, trova), null);
+});
+
+test("risolviToken: un bersaglio sparito resta fuori, e se non ne resta nessuno il proiettile non parte", () => {
+  assert.equal(risolviToken({ file: "f", forma: "proiettile", origine: "SRC", bersagli: ["sparito"] }, trova), null);
+  assert.equal(risolviToken({ file: "f", forma: "bersaglio", origine: "SRC", bersagli: ["sparito"] }, trova), null);
+  assert.ok(risolviToken({ file: "f", forma: "lanciatore", origine: "SRC", bersagli: ["sparito"] }, trova));
 });
