@@ -3,6 +3,7 @@ import { adattatorePer } from "./lib/sistemi/index.mjs";
 import { decidi } from "./lib/decisione.mjs";
 import { fileDaPrecaricare } from "./lib/preload.mjs";
 import { suona } from "./suona.mjs";
+import { creaApi } from "./api.mjs";
 import { ConfigurazioneVFX } from "./apps/configurazione.mjs";
 import "./monks.mjs";
 
@@ -27,6 +28,10 @@ Hooks.once("init", () => {
   game.settings.register(MODULE_ID, SETTING_MAPPA, {
     scope: "world", config: false, type: Object, default: {}
   });
+
+  /* Esposta anche su un system non supportato: chi la chiama riceve false invece di un
+     "api is undefined". */
+  game.modules.get(MODULE_ID).api = creaApi({ adattatore, mappa, attivo, suona });
 
   if (!adattatore) {
     console.warn(`[${MODULE_ID}] system ${game.system.id} non supportato: il modulo resta spento`);
