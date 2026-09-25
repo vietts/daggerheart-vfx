@@ -87,6 +87,10 @@ test("regola: una cella con forma propria la impone", () => {
   assert.deepEqual(regolaDnd(riga({ danni: ["thunder"], formaDedotta: "proiettile" })), DANNI.thunder.proiettile);
 });
 
+test("regola: un incantesimo a danno con raggio 'lanciatore' gioca il file bersaglio su chi lancia", () => {
+  assert.deepEqual(regolaDnd(riga({ danni: ["fire"], formaDedotta: "lanciatore" })), { file: DANNI.fire.bersaglio, forma: "lanciatore" });
+});
+
 test("regola: cura, poi scuola, poi niente", () => {
   assert.deepEqual(regolaDnd(riga({ cura: true })), { file: CURA, forma: "auto" });
   assert.deepEqual(regolaDnd(riga({ scuola: "enc" })), { file: SCUOLE.enc, forma: "auto" });
@@ -100,6 +104,11 @@ test("regola: armi per baseItem e tipo d'attacco", () => {
     { file: ARMI.longbow.distanza, forma: "proiettile" });
   assert.deepEqual(regolaDnd(riga({ tipoItem: "weapon", baseItem: "dagger", attacco: "ranged" })),
     { file: ARMI.dagger.distanza, forma: "proiettile" });
+});
+
+test("regola: un'arma solo a distanza senza attacco 'ranged' usa comunque il suo file a distanza", () => {
+  assert.deepEqual(regolaDnd(riga({ tipoItem: "weapon", baseItem: "longbow", attacco: null })),
+    { file: ARMI.longbow.distanza, forma: "proiettile" });
 });
 
 test("regola: armi naturali per identifier, e un'arma sconosciuta ha il generico", () => {

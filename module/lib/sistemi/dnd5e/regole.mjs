@@ -123,6 +123,7 @@ function regolaArma(r) {
     return { file: GENERICO.distanza, forma: "proiettile" };
   }
   if (arma?.mischia) return { file: arma.mischia, forma: "bersaglio" };
+  if (arma?.distanza) return { file: arma.distanza, forma: "proiettile" };
   if (NATURALI[r.identifier]) return { file: NATURALI[r.identifier], forma: "bersaglio" };
   return { file: GENERICO.mischia, forma: "bersaglio" };
 }
@@ -141,6 +142,8 @@ export function regolaDnd(r) {
     return { file: SOFFI[danno][r.sagoma?.tipo === "line" ? "line" : "cone"], forma: "proiettile" };
 
   const cella = danno ? DANNI[danno]?.[colonna(r.formaDedotta)] : null;
+  /* Un incantesimo a danno con raggio "lanciatore" (range self) resta sulla colonna bersaglio
+     ma gioca il file su chi lancia: la forma dedotta passa cosi' com'e', "lanciatore" incluso. */
   if (cella) return typeof cella === "string" ? { file: cella, forma: r.formaDedotta } : { ...cella };
 
   if (r.cura) return { file: CURA, forma: r.formaDedotta === "lanciatore" ? "lanciatore" : "auto" };
