@@ -1,7 +1,7 @@
 {
   "id": "daggerheart-vfx",
-  "title": "Daggerheart VFX",
-  "description": "Effetti visivi per le carte di dominio di Daggerheart.",
+  "title": "Tavolo VFX",
+  "description": "Effetti visivi per Daggerheart (carte di dominio, avversari) e D&D 5e (incantesimi, armi, privilegi, mostri), con un'API per farli partire da un altro modulo.",
   "version": "0.1.0",
   "compatibility": {
     "minimum": "13",
@@ -37,6 +37,13 @@
         "type": "system",
         "compatibility": {
           "minimum": "2.9.0"
+        }
+      },
+      {
+        "id": "dnd5e",
+        "type": "system",
+        "compatibility": {
+          "minimum": "6.0.0"
         }
       }
     ],

@@ -1,6 +1,6 @@
-# Daggerheart VFX
+# Tavolo VFX
 
-Effetti visivi per le carte di dominio e gli avversari di Daggerheart su Foundry VTT.
+Effetti visivi per Daggerheart e D&D 5e su Foundry VTT. L'id del modulo resta `daggerheart-vfx`.
 
 Quando un personaggio usa un'azione di una carta di dominio, o un avversario usa il suo
 attacco o una sua feature, il modulo gioca l'effetto che gli hai assegnato: un proiettile teso dal lanciatore al bersaglio, un'esplosione appoggiata
@@ -9,7 +9,8 @@ sul bersaglio, o un effetto su chi lancia.
 ## Cosa serve
 
 - Foundry VTT 13 o 14
-- Il system [Daggerheart](https://github.com/Foundryborne/daggerheart) 2.9.0 o più recente
+- Il system [Daggerheart](https://github.com/Foundryborne/daggerheart) 2.9.0 o più recente,
+  oppure il system **dnd5e** 6.0 o più recente
 - I moduli **Sequencer** e **JB2A** (la versione gratuita basta: 1693 effetti)
 
 ## Primo avvio
@@ -39,6 +40,22 @@ system e le copie di mondo, per esempio un compendio con i token già disegnati.
 avversario in due compendi è una riga sola, e la sua assegnazione vale per i token presi da
 uno qualunque dei due: la riga si riconosce dall'id dell'attore d'origine, non dal compendio.
 Il filtro in alto li raggruppa per tier (*avversari T1*… *T4*).
+
+## D&D 5e
+
+In un mondo dnd5e la finestra elenca incantesimi, armi, privilegi, consumabili e le azioni
+dei mostri, raggruppati (*trucchetti*, *incantesimi 1°…9°*, *armi*, *privilegi*, *mostri*,
+*consumabili*). Una riga vale per l'oggetto, non per chi lo usa: la *Scimitarra* è una sola
+per tutti i goblin e tutti i PG. La chiave è `dnd5e.<tipo>.<identifier>`.
+
+**Precompila** usa prima una tabella scelta oggetto per oggetto (Palla di fuoco, Dardo
+incantato, Cura ferite, Attacco furtivo…), poi regole per tipo di danno e forma, per arma e
+per scuola.
+
+La forma **area** gioca un effetto solo: sull'area piazzata se l'incantesimo ne ha
+piazzata una, altrimenti al centro dei bersagli, grande quanto la sagoma dell'incantesimo.
+
+L'effetto parte quando l'oggetto viene usato, prima del tiro: i mancati non si filtrano.
 
 ## Cambiare un effetto
 
@@ -102,6 +119,22 @@ Con **Monk's Active Tile Triggers** attivo, fra le azioni di una tile compare il
 L'azione passa i suoi token a quella dopo, quindi "fumo nero sui cultisti, poi mostrali con
 dissolvenza" sono due azioni in fila: *Effetto JB2A* sui token scelti, poi *Mostra/Nascondi*
 sui risultati precedenti.
+
+## API
+
+Per far partire un effetto da un altro modulo (il Phone Companion lo fa dal client del GM):
+
+```js
+const api = game.modules.get("daggerheart-vfx").api;
+api.haEffetto(item, azioneId);                        // c'è un effetto? funziona senza canvas
+await api.gioca({ item, azioneId, origine, bersagli }); // true se l'ha giocato
+```
+
+`origine` e `bersagli` sono id di token della scena. `azioneId` serve solo in Daggerheart
+(l'azione della carta); senza, vale la prima che ha un effetto. Tutti i bersagli contano
+come colpiti. `gioca` va chiamata su un client con il canvas aperto sulla scena; il
+controllo su chi può chiamarla è di chi chiama. Nessuna delle due solleva: un problema
+diventa `false` e un messaggio in console.
 
 ## Copiare il modulo su un server
 

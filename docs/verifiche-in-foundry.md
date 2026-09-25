@@ -11,6 +11,31 @@ richiuse fuori da Foundry (le chiavi JB2A contro il database installato, la form
 controller e registrate nel ledger di lavoro). Sono ordinate per importanza: in cima le
 prove che possono costringere a cambiare codice, in fondo le rifiniture.
 
+## D&D 5e e API (branch `feature/dnd5e`)
+
+Serve un mondo di prova con dnd5e 6.0.3, il PHB (`dnd-players-handbook`), Sequencer e JB2A.
+
+1. **Identifier del PHB.** In console: `(await fromUuid("<uuid di Magic Missile del PHB>")).identifier`
+   → `magic-missile`. Stessa prova per `fireball`, per la *Scimitar* e per tre privilegi della
+   tabella (`sneak-attack`, `second-wind`, `bardic-inspiration`). Se un privilegio ha un
+   identifier diverso, correggere la chiave in `lib/sistemi/dnd5e/assegnazioni.mjs`.
+2. **Tipo d'attacco di un'arma a distanza del PHB**: `item.system.activities.contents[0].attack.type.value`
+   su un arco. Se è vuoto, `tipoAttacco` lo ricava da `system.type.value` (deve finire in `R`).
+3. **Area piazzata.** Usare *Fireball* da desktop piazzando l'area. In console, con un hook
+   temporaneo `Hooks.once("dnd5e.postUseActivity", (a, u, r) => console.log(r))`, guardare se
+   l'area è in `r.templates` o in `r.regions` e con quali campi. L'esplosione deve stare
+   sull'area e coprire 40 ft. Se il punto è altrove, correggere `puntoArea`.
+4. *Fire Bolt* da desktop con un bersaglio: il proiettile parte dal lanciatore al bersaglio.
+5. *Burning Hands* e un soffio: il cono si tende dal lanciatore verso i bersagli senza deformarsi male.
+6. L'arma di un mostro di `actors24`, usata dal GM su un PG: l'effetto parte.
+7. La finestra in un mondo dnd5e: i gruppi, *Precompila*, *Prova*; il tempo di apertura (legge
+   tutti i compendi: se supera qualche secondo, annotarlo).
+8. `game.modules.get("daggerheart-vfx").api.gioca({ item, origine, bersagli })` dalla console del
+   GM con id veri, in dnd5e e in Daggerheart; `api.haEffetto(item)` dalla console di un giocatore.
+9. **Il mondo Daggerheart dopo il refactor**: una carta e un avversario si animano come prima,
+   la finestra mostra le stesse righe e *Precompila* non cambia niente.
+10. Il titolo del modulo in *Gestisci moduli* è *Tavolo VFX*.
+
 ## Come installare il modulo sul server
 
 `deploy.sh` copia `module/` dentro la cartella `modules/` di un'installazione Foundry.

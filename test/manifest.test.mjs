@@ -41,3 +41,9 @@ test("manifest e download puntano allo stesso repo", () => {
   assert.ok(repo(manifest.manifest), `manifest non e' un url github: ${manifest.manifest}`);
   assert.equal(repo(manifest.download), repo(manifest.manifest));
 });
+
+test("il modulo dichiara entrambi i system", () => {
+  const sistemi = manifest.relationships.systems.map(s => s.id).sort();
+  assert.deepEqual(sistemi, ["daggerheart", "dnd5e"]);
+  assert.equal(manifest.title, "Tavolo VFX");
+});

@@ -14,7 +14,7 @@
   <ol class="dhvfx-righe">
     {{#each righe}}
     <li class="dhvfx-riga" data-chiave="{{this.chiave}}" data-dominio="{{this.dominio}}">
-      <span class="dhvfx-titolo">{{this.nomeCarta}} — {{this.nomeAzione}}</span>
+      <span class="dhvfx-titolo">{{this.nomeCarta}}{{#if this.nomeAzione}} — {{this.nomeAzione}}{{/if}}</span>
       <input type="text" name="file" value="{{this.file}}" placeholder="jb2a...">
       <select name="forma">
         {{selectOptions ../forme selected=this.forma blank="—"}}
