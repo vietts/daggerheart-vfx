@@ -7,9 +7,7 @@
  * questa scena puo' davvero usare.
  */
 
-import { chiave } from "./chiavi.mjs";
-
-export function fileDaPrecaricare(cartePerAttore, mappa) {
+export function fileDaPrecaricare(cartePerAttore, mappa, chiave) {
   const file = new Set();
   for (const azioni of cartePerAttore) {
     for (const dati of azioni) {

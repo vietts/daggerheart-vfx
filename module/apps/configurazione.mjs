@@ -1,5 +1,5 @@
 import { MODULE_ID, SETTING_MAPPA, FORME } from "../lib/costanti.mjs";
-import { righeDaCarte, precompila, righeCambiate, righeImportabili } from "../lib/catalogo.mjs";
+import { righeDaCarte, precompila, righeCambiate, righeImportabili } from "../lib/sistemi/daggerheart/catalogo.mjs";
 import { risolviForma } from "../lib/decisione.mjs";
 import { costruisci } from "../lib/scena.mjs";
 

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { azioniDiCarta, azioniDiAvversario, righeDaCarte, precompila, righeCambiate, rigaValida, righeImportabili } from "../module/lib/catalogo.mjs";
-import { ASSEGNAZIONI } from "../module/lib/assegnazioni.mjs";
+import { azioniDiCarta, azioniDiAvversario, righeDaCarte, precompila, righeCambiate, rigaValida, righeImportabili } from "../module/lib/sistemi/daggerheart/catalogo.mjs";
+import { ASSEGNAZIONI } from "../module/lib/sistemi/daggerheart/assegnazioni.mjs";
 
 const F = "Compendium.daggerheart.domains.Item.AAA";
 const carta = (nome, dominio, azioni) => ({

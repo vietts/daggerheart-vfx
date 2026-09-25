@@ -7,15 +7,12 @@
  * vuoto: chi chiama deve poter uscire senza controllare campi.
  */
 
-import { chiave } from "./chiavi.mjs";
-
 export function risolviForma(forma, bersagli) {
   if (forma !== "auto") return forma;
   return bersagli.length ? "bersaglio" : "lanciatore";
 }
 
-export function decidi(dati, mappa, ctx) {
-  const k = chiave(dati);
+export function decidi(k, mappa, ctx) {
   if (!k) return null;
 
   const riga = mappa?.[k];

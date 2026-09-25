@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { contesto } from "../module/lib/contesto.mjs";
+import { contesto } from "../module/lib/sistemi/daggerheart/contesto.mjs";
 
 /* La forma vera di config.targets nel system, verificata sul sorgente di formatTarget. */
 const bersaglio = (id, success) => ({

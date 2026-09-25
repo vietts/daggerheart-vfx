@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileDaPrecaricare } from "../module/lib/preload.mjs";
+import { chiave } from "../module/lib/sistemi/daggerheart/chiavi.mjs";
 
 const dati = (fonte, id) => ({ compendiumSource: fonte, idAzione: id, nomeCarta: null, nomeAzione: null });
 const F = "Compendium.daggerheart.domains.Item.AAA";
@@ -11,14 +12,14 @@ const mappa = {
 };
 
 test("raccoglie i file delle azioni presenti, senza ripetizioni", () => {
-  const out = fileDaPrecaricare([[dati(F, "a1"), dati(F, "a2")], [dati(F, "a3")]], mappa);
+  const out = fileDaPrecaricare([[dati(F, "a1"), dati(F, "a2")], [dati(F, "a3")]], mappa, chiave);
   assert.deepEqual(out.sort(), ["jb2a.due", "jb2a.uno"]);
 });
 
 test("le azioni senza riga non aggiungono niente", () => {
-  assert.deepEqual(fileDaPrecaricare([[dati(F, "ignota")]], mappa), []);
+  assert.deepEqual(fileDaPrecaricare([[dati(F, "ignota")]], mappa, chiave), []);
 });
 
 test("nessun attore in scena, niente da precaricare", () => {
-  assert.deepEqual(fileDaPrecaricare([], mappa), []);
+  assert.deepEqual(fileDaPrecaricare([], mappa, chiave), []);
 });

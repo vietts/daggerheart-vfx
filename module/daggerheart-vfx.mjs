@@ -1,10 +1,10 @@
 import { MODULE_ID, SETTING_MAPPA, SETTING_ATTIVO } from "./lib/costanti.mjs";
-import { datiAzione } from "./lib/chiavi.mjs";
-import { contesto } from "./lib/contesto.mjs";
+import { datiAzione, chiave } from "./lib/sistemi/daggerheart/chiavi.mjs";
+import { contesto } from "./lib/sistemi/daggerheart/contesto.mjs";
 import { decidi } from "./lib/decisione.mjs";
 import { costruisci } from "./lib/scena.mjs";
 import { fileDaPrecaricare } from "./lib/preload.mjs";
-import { azioniDiCarta, azioniDiAvversario } from "./lib/catalogo.mjs";
+import { azioniDiCarta, azioniDiAvversario } from "./lib/sistemi/daggerheart/catalogo.mjs";
 import { ConfigurazioneVFX } from "./apps/configurazione.mjs";
 import "./monks.mjs";
 
@@ -69,7 +69,7 @@ Hooks.on("daggerheart.postUseAction", async (action, config) => {
     const src = action.actor?.getActiveTokens?.()?.[0];
     const ctx = contesto(config, src?.id ?? null);
 
-    const descrittore = decidi(dati, mappa(), ctx);
+    const descrittore = decidi(chiave(dati), mappa(), ctx);
     if (!descrittore) return;
 
     const risolto = risolviToken(descrittore);
@@ -110,7 +110,7 @@ Hooks.on("canvasReady", async () => {
   try {
     if (!attivo()) return;
     if (!game.user.isGM) return;
-    const file = fileDaPrecaricare(azioniInScena(), mappa());
+    const file = fileDaPrecaricare(azioniInScena(), mappa(), chiave);
     if (!file.length) return;
     await Sequencer.Preloader.preloadForClients(file, true);
     console.log(`[${MODULE_ID}] precaricati ${file.length} effetti per questa scena`);

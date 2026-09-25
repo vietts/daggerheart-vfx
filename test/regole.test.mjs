@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { REGOLE, fileDaRegola, formaDaAzione } from "../module/lib/regole.mjs";
+import { REGOLE, fileDaRegola, formaDaAzione } from "../module/lib/sistemi/daggerheart/regole.mjs";
 
 test("ci sono 37 regole, una per coppia dominio+tipo del compendio 2.9.3", () => {
   assert.equal(Object.keys(REGOLE).length, 37);

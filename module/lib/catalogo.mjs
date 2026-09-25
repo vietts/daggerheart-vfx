@@ -1,93 +1,28 @@
 /*
- * L'elenco che la finestra mostra, e la precompilazione.
- *
- * Riceve le carte gia' lette da fuori (il compendio si apre con game.packs, che e' un
- * globale): qui dentro sono solo oggetti, e i test le costruiscono a mano.
+ * La parte del catalogo che non dipende dal sistema: costruire le righe della finestra da una
+ * lista di documenti, precompilare la mappa, validare un import. Cosa sia un'azione, come si
+ * chiami e cosa proporre lo dice l'adattatore (lib/sistemi/<id>/).
  */
 
 import { FORME } from "./costanti.mjs";
-import { chiave, datiAzione, datiAzioneAvversario } from "./chiavi.mjs";
-import { fileDaRegola, formaDaAzione } from "./regole.mjs";
-import { ASSEGNAZIONI } from "./assegnazioni.mjs";
-import { ASSEGNAZIONI_AVVERSARI } from "./assegnazioni-avversari.mjs";
-
-const TABELLA = { ...ASSEGNAZIONI, ...ASSEGNAZIONI_AVVERSARI };
 
 /*
- * L'unico modo di iterare le azioni di una carta, per i due cammini che ne hanno bisogno: la
- * finestra (che vede oggetti sorgente, da toObject()) e il preload (che vede documenti vivi,
- * cioe' quello che il system istanzia). Due cicli scritti separatamente avevano gia' smesso
- * di leggere la stessa cosa: se a runtime `system.actions` fosse una Collection invece di un
- * oggetto semplice, `Object.values` darebbe [] e il preload non precaricherebbe niente, in
- * silenzio.
+ * Lo stesso oggetto puo' arrivare da due compendi (quello del system e una copia di mondo):
+ * stessi id, quindi stesse chiavi. Si tiene la prima riga e basta, altrimenti la finestra ne
+ * mostrerebbe due che scrivono nello stesso posto.
  *
- * Quindi si accettano le tre forme plausibili (oggetto, array, qualunque cosa abbia values())
- * e si legge campo per campo invece di fare lo spread: se i campi dell'azione fossero getter
- * di prototipo e non proprieta' proprie, `{ ...az }` li perderebbe e ne uscirebbero chiavi e
- * forme sbagliate.
+ * La riga porta tutti i dati dell'azione: le regole di precompilazione li leggono da li'.
  */
-function elencoAzioni(azioni) {
-  if (!azioni || typeof azioni !== "object") return [];
-  const elenco = Array.isArray(azioni) ? azioni
-    : typeof azioni.values === "function" ? [...azioni.values()]
-    : Object.values(azioni);
-  return elenco.filter(az => az && typeof az === "object");
-}
-
-export function azioniDiCarta(carta) {
-  return elencoAzioni(carta?.system?.actions).map(az => datiAzione({
-    _id: az._id, name: az.name, type: az.type, range: az.range, target: az.target, item: carta
-  }));
-}
-
-/*
- * Un avversario ha due fonti di azioni: l'attacco base, che sta in system.attack e non in un
- * item, e le azioni delle sue feature. Stesse tre forme da reggere di azioniDiCarta, piu'
- * `items`, che e' un array sull'oggetto sorgente e una Collection sull'attore vivo.
- */
-export function azioniDiAvversario(attore) {
-  const dati = [];
-  const attacco = attore?.system?.attack;
-  if (attacco && typeof attacco === "object") dati.push(datiAzioneAvversario(attore, null, attacco));
-  for (const feature of attore?.items ?? []) {
-    for (const az of elencoAzioni(feature?.system?.actions)) dati.push(datiAzioneAvversario(attore, feature, az));
-  }
-  return dati;
-}
-
-/* Le azioni che il modulo sa animare, da qualunque documento: carta di dominio o avversario. */
-export function azioniDi(doc) {
-  if (doc?.type === "domainCard") return azioniDiCarta(doc);
-  if (doc?.type === "adversary") return azioniDiAvversario(doc);
-  return [];
-}
-
-/*
- * Lo stesso avversario puo' arrivare da due compendi (quello del system e una copia di mondo
- * con i token): stessi id, quindi stesse chiavi. Si tiene la prima riga e basta, altrimenti
- * la finestra ne mostrerebbe due che scrivono nello stesso posto.
- */
-export function righeDaCarte(carte, mappa = {}) {
+export function righeDa(documenti, mappa = {}, { azioniDi, chiave }) {
   const righe = [];
   const viste = new Set();
-  for (const carta of carte) {
-    for (const dati of azioniDi(carta)) {
+  for (const doc of documenti) {
+    for (const dati of azioniDi(doc)) {
       const k = chiave(dati);
       if (!k || viste.has(k)) continue;
       viste.add(k);
       const riga = mappa[k] ?? {};
-      righe.push({
-        chiave: k,
-        categoria: dati.categoria,
-        dominio: dati.dominio,
-        nomeCarta: dati.nomeCarta,
-        nomeAzione: dati.nomeAzione,
-        tipo: dati.tipo,
-        range: dati.range,
-        targetType: dati.targetType,
-        file: riga.file ?? null,
-        forma: riga.forma ?? null
-      });
+      righe.push({ ...dati, chiave: k, file: riga.file ?? null, forma: riga.forma ?? null });
     }
   }
   return righe;
@@ -98,28 +33,22 @@ export function righeDaCarte(carte, mappa = {}) {
  * poi non conta piu' niente. E non sovrascrive: una scelta fatta a mano vince sempre sulla
  * regola, altrimenti il bottone diventerebbe un modo per perdere il proprio lavoro.
  *
- * La proposta viene prima dalla tabella per azione (una scelta per carta o per avversario,
- * letta dal testo) e solo se l'azione non c'e' — homebrew, carte uscite dopo — dalla regola
- * del dominio. Gli avversari una regola di dominio non ce l'hanno: fuori tabella restano vuoti.
+ * `proposta(riga)` restituisce { specifica, regola }: la scelta per quella chiave (tabella) e
+ * quella di famiglia (regola), ognuna { file, forma } o null. La specifica vince.
  *
  * Unica eccezione al "non sovrascrive": una riga il cui file e' ancora esattamente quello
- * della regola di dominio non l'ha scelta nessuno, e' la vecchia precompilazione. Quella
- * si aggiorna alla scelta per azione, cosi' chi aveva gia' premuto Precompila non deve
- * svuotare la mappa per averla. Il prezzo: chi aveva scelto a mano proprio l'effetto della
- * regola se lo vede cambiare — lo stesso effetto per tutta la famiglia e' esattamente la
- * cosa che la tabella esiste per togliere, quindi e' un caso raro.
+ * della regola non l'ha scelta nessuno, e' la vecchia precompilazione. Quella si aggiorna
+ * alla scelta specifica, cosi' chi aveva gia' premuto Precompila non deve svuotare la mappa.
  */
-export function precompila(righe, mappa) {
+export function precompilaCon(righe, mappa, proposta) {
   const nuova = { ...mappa };
   for (const r of righe) {
     const attuale = nuova[r.chiave]?.file;
-    const regola = fileDaRegola(r.dominio, r.tipo);
-    const specifica = TABELLA[r.chiave];
+    const { specifica = null, regola = null } = proposta(r) ?? {};
 
-    if (attuale && !(specifica && attuale === regola)) continue;
+    if (attuale && !(specifica && attuale === regola?.file)) continue;
     if (specifica) { nuova[r.chiave] = { ...specifica }; continue; }
-    if (!regola) continue;
-    nuova[r.chiave] = { file: regola, forma: formaDaAzione(r) };
+    if (regola) nuova[r.chiave] = { ...regola };
   }
   return nuova;
 }

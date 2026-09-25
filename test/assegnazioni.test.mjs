@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ASSEGNAZIONI } from "../module/lib/assegnazioni.mjs";
-import { ASSEGNAZIONI_AVVERSARI } from "../module/lib/assegnazioni-avversari.mjs";
-import { REGOLE } from "../module/lib/regole.mjs";
+import { ASSEGNAZIONI } from "../module/lib/sistemi/daggerheart/assegnazioni.mjs";
+import { ASSEGNAZIONI_AVVERSARI } from "../module/lib/sistemi/daggerheart/assegnazioni-avversari.mjs";
+import { REGOLE } from "../module/lib/sistemi/daggerheart/regole.mjs";
 import { FORME } from "../module/lib/costanti.mjs";
 
 /*

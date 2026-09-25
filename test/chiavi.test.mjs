@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { datiAzione, chiave } from "../module/lib/chiavi.mjs";
+import { datiAzione, chiave } from "../module/lib/sistemi/daggerheart/chiavi.mjs";
 
 const FONTE = "Compendium.daggerheart.domains.Item.df4iRqQzRntrF6Qw";
 
