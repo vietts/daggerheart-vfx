@@ -74,7 +74,13 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   async _prepareContext() {
-    const righe = this.#adattatore.righe(await this.#documenti(), this.#mappa());
+    /* Diametro e unita' della sagoma vera dell'azione (non della misura di ripiego): Prova
+       li porta con se' via data-attribute, cosi' la forma "area" gioca alla dimensione giusta
+       invece che sempre alle 3 caselle di ripiego. Null-safe: Daggerheart non dichiara aree. */
+    const righe = this.#adattatore.righe(await this.#documenti(), this.#mappa()).map(r => {
+      const area = this.#adattatore.area(r, null) ?? {};
+      return { ...r, diametro: area.diametro ?? null, unita: area.unita ?? null };
+    });
     return {
       righe,
       forme: FORME,
@@ -206,7 +212,12 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
     if ((forma === "proiettile" || forma === "bersaglio") && !bersagli.length)
       return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaBersaglio"));
 
-    await costruisci({ file, forma, origine, bersagli, area: { diametro: null, unita: null, punto: null } }, Sequence, {
+    /* La sagoma vera della riga viaggia sul <li> come data-attribute (vedi _prepareContext):
+       Prova gioca l'area alla dimensione dell'azione, non a quella di ripiego. */
+    const { diametro, unita } = riga.dataset;
+    const area = { diametro: Number(diametro) || null, unita: unita || null, punto: null, centro: "bersagli" };
+
+    await costruisci({ file, forma, origine, bersagli, area }, Sequence, {
       distanzaCasella: canvas.scene?.grid?.distance ?? null,
       unitaCasella: canvas.scene?.grid?.units ?? null
     }).play();
