@@ -9,18 +9,22 @@ const carta = {
   _stats: { compendiumSource: FONTE }
 };
 
-test("il registro conosce daggerheart e nient'altro, per ora", () => {
+test("il registro conosce daggerheart e dnd5e, e nient'altro", () => {
   assert.equal(adattatorePer("daggerheart").id, "daggerheart");
+  assert.equal(adattatorePer("dnd5e").id, "dnd5e");
   assert.equal(adattatorePer("pf2e"), null);
   assert.equal(adattatorePer(undefined), null);
 });
 
-test("l'adattatore daggerheart ha tutto il contratto", () => {
-  const a = adattatorePer("daggerheart");
-  for (const m of ["chiave", "azioniDi", "azioniDiAttore", "daHook", "area", "righe", "precompila", "leggiDocumenti"])
-    assert.equal(typeof a[m], "function", m);
-  assert.equal(a.hook, "daggerheart.postUseAction");
-  assert.ok(Object.isFrozen(a));
+test("ogni adattatore ha tutto il contratto", () => {
+  for (const id of ["daggerheart", "dnd5e"]) {
+    const a = adattatorePer(id);
+    for (const m of ["chiave", "azioniDi", "azioniDiAttore", "daHook", "area", "righe", "precompila", "leggiDocumenti"])
+      assert.equal(typeof a[m], "function", `${id}.${m}`);
+    assert.equal(typeof a.hook, "string");
+    assert.ok(Object.isFrozen(a), id);
+  }
+  assert.equal(adattatorePer("dnd5e").hook, "dnd5e.postUseActivity");
 });
 
 test("daHook di daggerheart: dati, attore e bersagli dal config", () => {

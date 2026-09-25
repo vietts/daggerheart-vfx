@@ -4,8 +4,9 @@
  */
 
 import daggerheart from "./daggerheart/index.mjs";
+import dnd5e from "./dnd5e/index.mjs";
 
-const ADATTATORI = Object.freeze({ daggerheart });
+const ADATTATORI = Object.freeze({ daggerheart, dnd5e });
 
 export function adattatorePer(systemId) {
   return ADATTATORI[systemId] ?? null;
