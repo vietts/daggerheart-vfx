@@ -24,7 +24,10 @@ Serve un mondo di prova con dnd5e 6.0.3, il PHB (`dnd-players-handbook`), Sequen
 3. **Area piazzata.** Usare *Fireball* da desktop piazzando l'area. In console, con un hook
    temporaneo `Hooks.once("dnd5e.postUseActivity", (a, u, r) => console.log(r))`, guardare se
    l'area è in `r.templates` o in `r.regions` e con quali campi. L'esplosione deve stare
-   sull'area e coprire 40 ft. Se il punto è altrove, correggere `puntoArea`.
+   sull'area e coprire 40 ft. Se il punto è altrove, correggere `puntoArea`. Ripetere con
+   *Thunderwave* (cubo di 15 ft da sé): senza area piazzata (gittata `self`), l'effetto deve
+   restare centrato sul lanciatore anche con dei bersagli in scena, non spostarsi sul loro
+   centroide — è la verifica dell'ancora `centro: "lanciatore"`.
 4. *Fire Bolt* da desktop con un bersaglio: il proiettile parte dal lanciatore al bersaglio.
 5. *Burning Hands* e un soffio: il cono si tende dal lanciatore verso i bersagli senza deformarsi male.
 6. L'arma di un mostro di `actors24`, usata dal GM su un PG: l'effetto parte.

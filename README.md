@@ -57,6 +57,16 @@ piazzata una, altrimenti al centro dei bersagli, grande quanto la sagoma dell'in
 
 L'effetto parte quando l'oggetto viene usato, prima del tiro: i mancati non si filtrano.
 
+La finestra legge solo i compendi: un incantesimo, un'arma o un mostro homebrew che vive solo
+nelle cartelle di mondo (non in un compendio) non ha una riga in finestra, e *Precompila* non
+lo tocca. Si anima comunque in gioco se gli si assegna una riga con la sua chiave a mano —
+per esempio importando una mappa da un altro mondo dove quell'oggetto è stato importato in
+un compendio.
+
+Un'arma da mischia lanciabile (pugnale, giavellotto) attaccata con l'activity da mischia
+mostra l'effetto da mischia: la chiave è per oggetto, e l'activity "principale" che sceglie
+tipo e sagoma è la prima fra quelle animabili, di solito quella da mischia.
+
 ## Cambiare un effetto
 
 Ogni riga ha due comandi: **🔍** apre il navigatore del database di Sequencer, dove cerchi e
@@ -135,6 +145,10 @@ await api.gioca({ item, azioneId, origine, bersagli }); // true se l'ha giocato
 come colpiti. `gioca` va chiamata su un client con il canvas aperto sulla scena; il
 controllo su chi può chiamarla è di chi chiama. Nessuna delle due solleva: un problema
 diventa `false` e un messaggio in console.
+
+Per un avversario Daggerheart, `item` è l'attore dell'avversario, non una sua feature presa
+da sola: una feature senza l'attore intorno non viene riconosciuta. `azioneId` sceglie fra
+l'attacco base e le sue feature.
 
 ## Copiare il modulo su un server
 
