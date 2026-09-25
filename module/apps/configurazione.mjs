@@ -1,30 +1,10 @@
 import { MODULE_ID, SETTING_MAPPA, FORME } from "../lib/costanti.mjs";
-import { righeDaCarte, precompila, righeCambiate, righeImportabili } from "../lib/sistemi/daggerheart/catalogo.mjs";
+import { righeCambiate, righeImportabili } from "../lib/catalogo.mjs";
+import { adattatorePer } from "../lib/sistemi/index.mjs";
 import { risolviForma } from "../lib/decisione.mjs";
 import { costruisci } from "../lib/scena.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-
-/* Il compendio delle carte di dominio del system. La finestra non ha altra fonte. */
-const COMPENDIO = "daggerheart.domains";
-
-/*
- * Gli avversari si cercano in tutti i compendi di attori, non in uno solo: c'e' quello del
- * system e spesso una copia di mondo con i token gia' disegnati, e le chiavi (che usano l'id
- * dell'attore, non il nome del pack) sono le stesse. righeDaCarte scarta i doppioni.
- * I compendi di mondo vengono prima, cosi' e' la loro copia a dare il nome alla riga.
- */
-async function avversariDaiCompendi() {
-  const packs = game.packs
-    .filter(p => p.documentName === "Actor" && p.index.some(e => e.type === "adversary"))
-    .sort((a, b) => (a.metadata.packageType === "world" ? 0 : 1) - (b.metadata.packageType === "world" ? 0 : 1));
-  const avversari = [];
-  for (const pack of packs) {
-    const documenti = await pack.getDocuments({ type: "adversary" });
-    avversari.push(...documenti.map(d => d.toObject()));
-  }
-  return avversari;
-}
 
 export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
@@ -49,9 +29,17 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
      le scritture successive: la coda si "ripulisce" prima di mettersi in fila di nuovo. */
   #codaScritture = Promise.resolve();
 
-  /* Le 210 carte del compendio si leggono una volta sola per finestra: un Precompila ne
-     faceva tre letture (contesto iniziale, precompila, render finale). */
   #carte = null;
+
+  /* Il system non cambia mentre il mondo e' aperto: l'adattatore si prende una volta. La
+     finestra si registra solo se c'e' (vedi daggerheart-vfx.mjs), quindi qui non e' null. */
+  #adattatore = adattatorePer(game.system.id);
+
+  /* I documenti dei compendi si leggono una volta sola per finestra: un Precompila ne
+     faceva tre letture (contesto iniziale, precompila, render finale). */
+  async #documenti() {
+    return (this.#carte ??= await this.#adattatore.leggiDocumenti());
+  }
 
   /*
    * L'UNICA porta sulla mappa. Ci passano tutte e tre le scritture — una riga, Precompila,
@@ -78,7 +66,7 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   async _prepareContext() {
-    const righe = righeDaCarte(await this.#carteDelCompendio(), this.#mappa());
+    const righe = this.#adattatore.righe(await this.#documenti(), this.#mappa());
     return {
       righe,
       forme: FORME,
@@ -90,31 +78,6 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
       }
     };
   }
-
-  /*
-   * Se il compendio non c'e' (system aggiornato, pack rinominato, mondo sbagliato) la finestra
-   * si apriva vuota e muta: `0 · 0 · 0` e nient'altro, che si legge come "il modulo e' rotto".
-   * La cache tiene anche l'assenza, cosi' la notifica non si ripete a ogni render.
-   */
-  async #carteDelCompendio() {
-    if (this.#carte) return this.#carte;
-    const pack = game.packs.get(COMPENDIO);
-    if (!pack) {
-      ui.notifications.error(game.i18n.format("DHVFX.finestra.compendioAssente", { pack: COMPENDIO }));
-      return (this.#carte = [...await avversariDaiCompendi()]);
-    }
-    /*
-     * `uuid` va tenuto a mano perche' toObject() lo butta via, e senza di lui questo cammino
-     * non sa da dove viene la carta. Un documento *dentro* il compendio non ha
-     * _stats.compendiumSource: quel campo lo acquista la COPIA quando finisce su una scheda.
-     * Senza uuid la finestra ripiegava sui nomi e salvava chiavi che il gioco, che legge la
-     * copia e quindi la fonte vera, non ritrovava mai: mappa piena e nessun effetto.
-     */
-    const documenti = await pack.getDocuments();
-    const carte = documenti.map(d => ({ ...d.toObject(), uuid: d.uuid }));
-    return (this.#carte = [...carte, ...await avversariDaiCompendi()]);
-  }
-
 
   /*
    * Gli ascoltatori si agganciano una volta sola, non a ogni render: il mixin non sostituisce
@@ -197,11 +160,11 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
   async #precompila() {
     /* La lettura del compendio sta fuori dalla coda: e' una lettura, e sono centinaia di ms
        durante i quali la mappa non deve restare "prenotata" da nessuno. */
-    const carte = await this.#carteDelCompendio();
+    const carte = await this.#documenti();
 
     const aggiunte = await this.#inCoda(async () => {
       const mappa = this.#mappa();
-      const nuova = precompila(righeDaCarte(carte, mappa), mappa);
+      const nuova = this.#adattatore.precompila(this.#adattatore.righe(carte, mappa), mappa);
       const n = righeCambiate(mappa, nuova);
       await game.settings.set(MODULE_ID, SETTING_MAPPA, nuova);
       return n;
