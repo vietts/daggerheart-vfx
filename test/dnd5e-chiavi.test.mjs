@@ -111,6 +111,10 @@ test("i gruppi della finestra", () => {
   assert.equal(gruppo({ type: "feat", _daMostro: true }), "mostri");
   assert.equal(gruppo({ type: "feat", parent: { type: "npc" } }), "mostri");
   assert.equal(gruppo({ type: "consumable" }), "consumabili");
+  assert.equal(gruppo({ type: "weapon", system: { type: { value: "natural" } }, _daMostro: true }), "mostri");
+  assert.equal(gruppo({ type: "weapon", system: { type: { value: "natural" } }, parent: { type: "npc" } }), "mostri");
+  assert.equal(gruppo({ type: "weapon", system: { type: { value: "natural" } } }), "armi");
+  assert.equal(gruppo({ type: "weapon", system: { type: { value: "simpleM" } }, _daMostro: true }), "armi");
 });
 
 test("il diametro dalla sagoma", () => {

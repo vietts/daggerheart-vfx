@@ -45,7 +45,12 @@ export function gruppo(item) {
       const livello = Number(item?.system?.level ?? 0);
       return livello === 0 ? "trucchetti" : `incantesimi ${livello}°`;
     }
-    case "weapon": return "armi";
+    /* Un'arma naturale (artigli, morso) di un mostro va coi mostri, non nel mucchio delle armi
+       impugnate dai PG: la si riconosce dal tipo "natural" piu' la stessa provenienza usata
+       per le feature (_daMostro dal compendio, o il parent dell'item vivo che e' un npc). */
+    case "weapon":
+      return item?.system?.type?.value === "natural" && (item?._daMostro || item?.parent?.type === "npc")
+        ? "mostri" : "armi";
     case "consumable": return "consumabili";
     case "feat": return (item?._daMostro || item?.parent?.type === "npc") ? "mostri" : "privilegi";
     default: return null;
