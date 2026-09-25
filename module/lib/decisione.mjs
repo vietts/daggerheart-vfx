@@ -32,5 +32,10 @@ export function decidi(k, mappa, ctx) {
      e' un effetto che Sequencer non sa dove tendere. */
   if (forma === "proiettile" && bersagli.length === 0) return null;
 
-  return { file: riga.file, forma, origine: ctx.origine, bersagli };
+  const descrittore = { file: riga.file, forma, origine: ctx.origine, bersagli };
+  /* L'area la sa solo il contesto (la sagoma dell'incantesimo, il punto piazzato). Una riga
+     messa ad `area` a mano su un sistema che non ne dichiara porta un'area vuota: scena.mjs
+     sa ripiegare. */
+  if (forma === "area") descrittore.area = ctx.area ?? { diametro: null, punto: null };
+  return descrittore;
 }

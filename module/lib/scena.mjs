@@ -1,5 +1,5 @@
 /*
- * Le tre geometrie, e nient'altro. Sequencer arriva come parametro invece che dal globale,
+ * Le quattro geometrie, e nient'altro. Sequencer arriva come parametro invece che dal globale,
  * cosi' anche questo file si prova fuori da Foundry con una Sequence finta.
  *
  * Nota su `proiettile`: i file ranged di JB2A esistono in cinque distanze (05ft…90ft) e non
@@ -7,13 +7,34 @@
  * (jb2a.magic_missile.purple) e sceglie lui il file giusto per la distanza fra i due token.
  */
 
-export function costruisci({ file, forma, origine, bersagli }, Sequence) {
+/* Quando non si sa quanto e' grande un'area (riga Daggerheart, griglia senza distanza):
+   tre caselle, cioe' 15 piedi su una griglia standard. */
+export const CASELLE_RIPIEGO = 3;
+
+function centroDi(tokens) {
+  const centri = tokens.map(t => t?.center).filter(c => Number.isFinite(c?.x) && Number.isFinite(c?.y));
+  if (!centri.length) return null;
+  return {
+    x: centri.reduce((s, c) => s + c.x, 0) / centri.length,
+    y: centri.reduce((s, c) => s + c.y, 0) / centri.length
+  };
+}
+
+function caselle(area, distanzaCasella) {
+  if (!area?.diametro || !distanzaCasella) return CASELLE_RIPIEGO;
+  return area.diametro / distanzaCasella;
+}
+
+export function costruisci({ file, forma, origine, bersagli, area }, Sequence, { distanzaCasella = null } = {}) {
   const s = new Sequence();
 
   if (forma === "proiettile") {
     for (const b of bersagli) s.effect().file(file).atLocation(origine).stretchTo(b);
   } else if (forma === "bersaglio") {
     for (const b of bersagli) s.effect().file(file).atLocation(b).scaleToObject(2);
+  } else if (forma === "area") {
+    const dove = area?.punto ?? centroDi(bersagli) ?? origine;
+    s.effect().file(file).atLocation(dove).size(caselle(area, distanzaCasella), { gridUnits: true });
   } else {
     s.effect().file(file).atLocation(origine).scaleToObject(1.6);
   }
@@ -53,6 +74,6 @@ export function risolviToken(descrittore, trova) {
   const origine = trova(descrittore.origine);
   if (!origine) return null;
   const bersagli = descrittore.bersagli.map(trova).filter(Boolean);
-  if (descrittore.forma !== "lanciatore" && !bersagli.length) return null;
+  if ((descrittore.forma === "proiettile" || descrittore.forma === "bersaglio") && !bersagli.length) return null;
   return { ...descrittore, origine, bersagli };
 }

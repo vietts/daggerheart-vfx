@@ -5,10 +5,10 @@
 
 export const MODULE_ID = "daggerheart-vfx";
 
-/* Le quattro geometrie di una giocata. `auto` non arriva mai fino a scena.mjs: la risolve
-   decisione.mjs guardando i bersagli veri, perche' 163 azioni su 284 non hanno un `range`
-   da cui dedurla in fase di configurazione. */
-export const FORME = Object.freeze(["proiettile", "bersaglio", "lanciatore", "auto"]);
+/* Le geometrie di una giocata. `auto` non arriva mai fino a scena.mjs: la risolve
+   decisione.mjs guardando i bersagli veri. `area` gioca un effetto solo, sull'area piazzata o
+   al centro dei bersagli (Palla di fuoco: un'esplosione, non tre). */
+export const FORME = Object.freeze(["proiettile", "bersaglio", "lanciatore", "area", "auto"]);
 
 export const SETTING_MAPPA = "mappa";
 export const SETTING_ATTIVO = "attivo";

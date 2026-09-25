@@ -58,3 +58,21 @@ test("una riga senza forma vale auto", () => {
 test("un'azione senza chiave non trova mai una riga", () => {
   assert.equal(decidi(null, { [K]: { file: "f" } }, ctx()), null);
 });
+
+test("una riga area porta l'area del contesto nel descrittore", () => {
+  const mappa = { [K]: { file: "jb2a.fireball.explosion.orange", forma: "area" } };
+  const area = { diametro: 40, punto: { x: 100, y: 200 } };
+  assert.deepEqual(decidi(K, mappa, ctx({ area })), {
+    file: "jb2a.fireball.explosion.orange", forma: "area", origine: "src", bersagli: ["t1"], area
+  });
+});
+
+test("un'area senza bersagli si gioca lo stesso, e senza area nel contesto ha un'area vuota", () => {
+  const mappa = { [K]: { file: "f", forma: "area" } };
+  assert.deepEqual(decidi(K, mappa, ctx({ bersagli: [] })).area, { diametro: null, punto: null });
+});
+
+test("solo la forma area aggiunge il campo area", () => {
+  const mappa = { [K]: { file: "f", forma: "bersaglio" } };
+  assert.equal("area" in decidi(K, mappa, ctx({ area: { diametro: 40, punto: null } })), false);
+});

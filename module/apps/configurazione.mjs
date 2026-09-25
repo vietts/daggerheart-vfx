@@ -195,10 +195,11 @@ export class ConfigurazioneVFX extends HandlebarsApplicationMixin(ApplicationV2)
        `auto` non arriva mai qui senza bersagli: risolviForma lo fa diventare `lanciatore`. */
     const bersagli = Array.from(game.user.targets);
     const forma = risolviForma(riga.querySelector("[name=forma]").value || "auto", bersagli);
-    if (forma !== "lanciatore" && !bersagli.length)
+    if ((forma === "proiettile" || forma === "bersaglio") && !bersagli.length)
       return ui.notifications.warn(game.i18n.localize("DHVFX.finestra.senzaBersaglio"));
 
-    await costruisci({ file, forma, origine, bersagli }, Sequence).play();
+    await costruisci({ file, forma, origine, bersagli, area: { diametro: null, punto: null } }, Sequence,
+      { distanzaCasella: canvas.scene?.grid?.distance ?? null }).play();
   }
 
   async #esporta() {

@@ -26,8 +26,8 @@ test("la compatibilita' e' 13-14", () => {
   assert.equal(manifest.compatibility.verified, "14");
 });
 
-test("le quattro forme sono quelle previste", () => {
-  assert.deepEqual([...FORME].sort(), ["auto", "bersaglio", "lanciatore", "proiettile"]);
+test("le cinque forme sono quelle previste", () => {
+  assert.deepEqual([...FORME].sort(), ["area", "auto", "bersaglio", "lanciatore", "proiettile"]);
 });
 
 /*
