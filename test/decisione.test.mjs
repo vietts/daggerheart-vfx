@@ -72,6 +72,12 @@ test("un'area senza bersagli si gioca lo stesso, e senza area nel contesto ha un
   assert.deepEqual(decidi(K, mappa, ctx({ bersagli: [] })).area, { diametro: null, unita: null, punto: null });
 });
 
+test("un'area porta il centroide di tutti i bersagli, anche i mancati", () => {
+  const mappa = { [K]: { file: "f", forma: "area" } };
+  const bersagli = [{ id: "t1", colpito: true }, { id: "t2", colpito: false }];
+  assert.deepEqual(decidi(K, mappa, ctx({ bersagli, haTiro: true })).bersagli, ["t1", "t2"]);
+});
+
 test("solo la forma area aggiunge il campo area", () => {
   const mappa = { [K]: { file: "f", forma: "bersaglio" } };
   assert.equal("area" in decidi(K, mappa, ctx({ area: { diametro: 40, punto: null } })), false);

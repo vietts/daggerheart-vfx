@@ -22,15 +22,21 @@ export function decidi(k, mappa, ctx) {
 
   /* Il filtro sui mancati vale solo se c'e' stato un tiro: un'azione senza tiro non ha
      bersagli mancati, ha solo bersagli. */
-  const bersagli = ctx.bersagli
+  const colpiti = ctx.bersagli
     .filter(b => !ctx.haTiro || b.colpito)
     .map(b => b.id);
 
-  const forma = risolviForma(riga.forma ?? "auto", bersagli);
+  const forma = risolviForma(riga.forma ?? "auto", colpiti);
 
   /* Un proiettile e' definito dai suoi due capi. Senza bersaglio non e' un effetto brutto:
      e' un effetto che Sequencer non sa dove tendere. */
-  if (forma === "proiettile" && bersagli.length === 0) return null;
+  if (forma === "proiettile" && colpiti.length === 0) return null;
+
+  /* Un'area copre anche chi ha mancato: il centroide con cui scena.mjs la piazza (in assenza
+     di un punto piazzato) deve venire da tutti i bersagli presi di mira, non solo da quelli
+     colpiti — altrimenti un tiro d'area fallito su tutti i bersagli sposterebbe l'area sul
+     lanciatore invece che restare dove miravano. */
+  const bersagli = forma === "area" ? ctx.bersagli.map(b => b.id) : colpiti;
 
   const descrittore = { file: riga.file, forma, origine: ctx.origine, bersagli };
   /* L'area la sa solo il contesto (la sagoma dell'incantesimo, il punto piazzato). Una riga
