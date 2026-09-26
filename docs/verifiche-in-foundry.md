@@ -76,8 +76,21 @@ di Sequencer: file, origine, bersaglio e dimensione di ogni effetto giocato.
 8. **Superata in dnd5e.** `api.gioca` con *Magic Missile* su goblin e lupo: due dardi, `true`.
    Con *Fireball* su due goblin: un'esplosione al loro centro. Con un'origine inesistente:
    `false`. `api.haEffetto`: `true` su *Magic Missile* (anche passando un `azioneId`), `false`
-   su un'armatura. Dalla console di un giocatore e in Daggerheart: da fare.
-9. **Da fare**: serve riattivare il mondo Daggerheart.
+   su un'armatura. In Daggerheart (faglia-dh): con l'orso come `item` e l'id del suo attacco,
+   l'artiglio appare sull'arcanista; *Cinder Grasp* su orso e bandito: un impatto di fuoco su
+   ognuno; *Unleash Chaos* con `azioneId` di *Replenish Tokens*: l'effetto di quell'azione, sul
+   lanciatore. `haEffetto`: `true` su carte e attacco dell'avversario, `false` sull'arma del PG.
+   Da un client giocatore: provata dalla sessione del companion in faglia (▶ dal telefono,
+   socket al GM, `gioca`).
+9. **Superata, nel mondo `faglia-dh`** (daggerheart 2.10.5), dove il modulo non era mai stato
+   attivo: non c'era una mappa di prima da confrontare, quindi si è confrontato con ciò che la
+   0.1.0 produceva. La finestra mostra 1315 righe: 284 azioni di carte (arcana 27, blade 20,
+   bone 17, codex 45, dread 29, grace 30, midnight 27, sage 39, splendor 31, valor 19) e 1031
+   degli avversari, gli stessi numeri delle tabelle; *Precompila* le assegna tutte, in 5,4 s
+   d'apertura. *Unleash Chaos* usata dal desktop (tiro vero): la sfera parte dall'arcanista al
+   bandito. L'attacco dell'orso usato dal GM ha mancato (totale 6) e, come previsto, non ha
+   giocato niente: i mancati si filtrano. Resta da vedere a occhio in five-banners-burning, la
+   campagna con la mappa già fatta, alla prossima sessione.
 10. **Superata.**
 
 ## Come installare il modulo sul server
