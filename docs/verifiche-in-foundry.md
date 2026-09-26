@@ -39,6 +39,47 @@ Serve un mondo di prova con dnd5e 6.0.3, il PHB (`dnd-players-handbook`), Sequen
    la finestra mostra le stesse righe e *Precompila* non cambia niente.
 10. Il titolo del modulo in *Gestisci moduli* è *Tavolo VFX*.
 
+### Esiti, 26/9/2026
+
+Sul VPS, mondo `faglia` (dnd5e 6.0.3, PHB 2.2.0, Sequencer 4.2.3, JB2A Free 0.9.3), scena
+"VFX prova" con un personaggio di prova ("VFX Mago", oggetti presi dal PHB), due *Goblin
+Warrior* e un *Wolf* di `actors24`. Gli effetti si sono letti dall'hook `createSequencerEffect`
+di Sequencer: file, origine, bersaglio e dimensione di ogni effetto giocato.
+
+1. **Superata.** Tutti gli oggetti del PHB portano `system.identifier` uguale alla chiave attesa:
+   `magic-missile`, `fireball`, `scimitar`, `longbow`, `thunderwave`, `sneak-attack`,
+   `second-wind`, `bardic-inspiration`, `arms-of-hadar`, `toll-the-dead`, `witch-bolt`,
+   `lay-on-hands`, `rage`, `action-surge`, `cunning-action`, `channel-divinity`,
+   `divine-smite`, `hunters-mark`. *Flurry of Blows* non esiste come oggetto a sé nel PHB
+   2024: la sua riga di tabella non trova niente, e non fa danno.
+2. **Superata.** L'arco lungo del PHB ha `attack.type.value = "ranged"` (tipo `martialR`). I
+   documenti vivi (activity in Collection, tipi di danno in Set) danno i dati attesi.
+3. **Superata.** In dnd5e 6 su v14 l'area piazzata è una **Region** (cerchio, raggio 560 px =
+   20 ft), e arriva in `results.templates` come `RegionDocument`: `puntoArea` la legge dal
+   centro dell'oggetto. L'esplosione cade sul centro dell'area, larga 8 caselle. Senza area
+   piazzata va al centro dei due goblin, 8 caselle. *Thunderwave* senza area resta sul mago,
+   3 caselle. Alla prima prova l'esplosione era 1,5 caselle sopra il centro: con ogni
+   probabilità l'anteprima si era spostata fra i due movimenti del mouse; ripetuta con un
+   clic solo, coincide.
+4. **Superata.** *Fire Bolt*: proiettile dal mago al goblin. *Magic Missile* su due goblin: due
+   dardi. *Longbow*: freccia sul lupo. *Scimitar* e *Sneak Attack*: sul bersaglio. *Cure
+   Wounds*: sul bersaglio se c'è, altrimenti sul mago.
+5. **Superata a occhio.** *Burning Hands*: un cono per bersaglio, teso dal mago, fiamme dritte e
+   non deformate. Il soffio non è stato provato (nessun drago in scena).
+6. **Superata.** Goblin (token non collegato): scimitarra sul mago, arco dal goblin al mago.
+   Lupo: morso sul mago.
+7. **Superata, con una nota sui tempi.** 1739 righe nei gruppi giusti (armi 321, mostri 427,
+   privilegi 355, consumabili 225, trucchetti 34, incantesimi 1°–9°). *Precompila*: 1158 righe
+   in 2,3 s. **La prima apertura della finestra impiega 17,7 s** (legge tutti i compendi, con
+   l'avviso "Leggo i compendi…"); le successive, dalla cache, 0,4 s. Da migliorare se dà
+   fastidio: leggere l'indice con i campi invece dei documenti.
+8. **Superata in dnd5e.** `api.gioca` con *Magic Missile* su goblin e lupo: due dardi, `true`.
+   Con *Fireball* su due goblin: un'esplosione al loro centro. Con un'origine inesistente:
+   `false`. `api.haEffetto`: `true` su *Magic Missile* (anche passando un `azioneId`), `false`
+   su un'armatura. Dalla console di un giocatore e in Daggerheart: da fare.
+9. **Da fare**: serve riattivare il mondo Daggerheart.
+10. **Superata.**
+
 ## Come installare il modulo sul server
 
 `deploy.sh` copia `module/` dentro la cartella `modules/` di un'installazione Foundry.
