@@ -6,6 +6,20 @@ Quando un personaggio usa un'azione di una carta di dominio, o un avversario usa
 attacco o una sua feature, il modulo gioca l'effetto che gli hai assegnato: un proiettile teso dal lanciatore al bersaglio, un'esplosione appoggiata
 sul bersaglio, o un effetto su chi lancia.
 
+> **Beta.** Provato al tavolo su Foundry 14 con Daggerheart 2.10 e dnd5e 6.0. Segnala i
+> problemi, e gli effetti che non ti convincono, nelle [Issues](https://github.com/vietts/daggerheart-vfx/issues).
+
+## Installazione
+
+In Foundry: *Moduli aggiuntivi → Installa modulo*, incolla nel campo **URL del manifest**:
+
+```
+https://github.com/vietts/daggerheart-vfx/releases/latest/download/module.json
+```
+
+Foundry propone di installare anche Sequencer e JB2A se mancano. Gli aggiornamenti arrivano
+da Foundry come per gli altri moduli.
+
 ## Cosa serve
 
 - Foundry VTT 13 o 14
@@ -188,3 +202,7 @@ docker start foundry
 - Hope e Fear non cambiano l'effetto: si gioca sui bersagli non mancati.
 
 `docs/verifiche-in-foundry.md` elenca le prove da fare a video, in ordine di importanza.
+
+## Licenza
+
+MIT.
